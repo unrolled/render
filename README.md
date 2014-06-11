@@ -245,5 +245,86 @@ func main() {
 }
 ~~~
 
+## Integration Examples
+
+### [Negroni](https://github.com/codegangsta/negroni)
+~~~ go
+// main.go
+package main
+
+import (
+    "net/http"
+
+    "github.com/codegangsta/negroni"
+    "github.com/unrolled/render"
+)
+
+func main() {
+    r := render.New(render.Options{
+        IndentJSON: true,
+    })
+    mux := http.NewServeMux()
+
+    mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+        r.JSON(w, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+    })
+
+    n := negroni.Classic()
+    n.UseHandler(mux)
+    n.Run(":3000")
+}
+~~~
+
+### [Traffic](https://github.com/pilu/traffic/)
+~~~ go
+// main.go
+package main
+
+import (
+    "net/http"
+
+    "github.com/pilu/traffic"
+    "github.com/unrolled/render"
+)
+
+func main() {
+    r := render.New(render.Options{
+        IndentJSON: true,
+    })
+
+    router := traffic.New()
+    router.Get("/", func(w traffic.ResponseWriter, req *traffic.Request) {
+        r.JSON(w, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+    })
+
+    router.Run()
+}
+~~~
+
+### [Web.go](https://github.com/hoisie/web)
+~~~ go
+// main.go
+package main
+
+import (
+    "net/http"
+
+    "github.com/hoisie/web"
+    "github.com/unrolled/render"
+)
+
+func main() {
+    r := render.New(render.Options{
+        IndentJSON: true,
+    })
+
+    web.Get("/(.*)", func(ctx *web.Context, val string) {
+        r.JSON(ctx, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+    })
+
+    web.Run("0.0.0.0:3000")
+}
+~~~
+
 ## Authors
 * [Cory Jacobsen](http://github.com/unrolled)
