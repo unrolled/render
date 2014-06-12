@@ -17,45 +17,45 @@ Render can be used with pretty much any web framework providing you can assess t
 package main
 
 import (
-  "encoding/xml"
-  "net/http"
+    "encoding/xml"
+    "net/http"
 
-  "github.com/unrolled/render"
+    "github.com/unrolled/render"
 )
 
 type ExampleXml struct {
-  XMLName xml.Name `xml:"example"`
-  One     string   `xml:"one,attr"`
-  Two     string   `xml:"two,attr"`
+    XMLName xml.Name `xml:"example"`
+    One     string   `xml:"one,attr"`
+    Two     string   `xml:"two,attr"`
 }
 
 func main() {
-  r := render.New(render.Options{})
-  mux := http.NewServeMux()
+    r := render.New(render.Options{})
+    mux := http.NewServeMux()
 
-  mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-    w.Write([]byte("Welcome, visit sub pages now."))
-  })
+    mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+        w.Write([]byte("Welcome, visit sub pages now."))
+    })
 
-  mux.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
-    r.Data(w, http.StatusOK, []byte("Some binary data here."))
-  })
+    mux.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
+        r.Data(w, http.StatusOK, []byte("Some binary data here."))
+    })
 
-  mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
-    r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
-  })
+    mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
+        r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
+    })
 
-  mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
-    r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
-  })
+    mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
+        r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
+    })
 
-  mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
-    // Assumes you have a template in ./templates called "example.tmpl"
-    // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
-    r.HTML(w, http.StatusOK, "example", nil)
-  })
+    mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
+        // Assumes you have a template in ./templates called "example.tmpl"
+        // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
+        r.HTML(w, http.StatusOK, "example", nil)
+    })
 
-  http.ListenAndServe("0.0.0.0:3000", mux)
+    http.ListenAndServe("0.0.0.0:3000", mux)
 }
 ~~~
 
@@ -70,18 +70,18 @@ func main() {
 ~~~ go
 // ...
 r := render.Render(render.Options{
-  Directory: "templates", // Specify what path to load the templates from.
-  Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template.
-  Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
-  Funcs: []template.FuncMap{AppHelpers}, // Specify helper function maps for templates to access.
-  Delims: render.Delims{"{[{", "}]}"}, // Sets delimiters to the specified strings.
-  Charset: "UTF-8", // Sets encoding for json and html content-types. Default is "UTF-8".
-  IndentJSON: true, // Output human readable JSON.
-  IndentXML: true, // Output human readable XML.
-  PrefixJSON: []byte(")]}',\n"), // Prefixes JSON responses with the given bytes.
-  PrefixXML: []byte("<?xml version='1.0' encoding='UTF-8'?>"), // Prefixes XML responses with the given bytes.
-  HTMLContentType: "application/xhtml+xml", // Output XHTML content type instead of default "text/html".
-  IsDevelopment: true, // Render will now recompile the templates on every HTML response.
+    Directory: "templates", // Specify what path to load the templates from.
+    Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template.
+    Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
+    Funcs: []template.FuncMap{AppHelpers}, // Specify helper function maps for templates to access.
+    Delims: render.Delims{"{[{", "}]}"}, // Sets delimiters to the specified strings.
+    Charset: "UTF-8", // Sets encoding for json and html content-types. Default is "UTF-8".
+    IndentJSON: true, // Output human readable JSON.
+    IndentXML: true, // Output human readable XML.
+    PrefixJSON: []byte(")]}',\n"), // Prefixes JSON responses with the given bytes.
+    PrefixXML: []byte("<?xml version='1.0' encoding='UTF-8'?>"), // Prefixes XML responses with the given bytes.
+    HTMLContentType: "application/xhtml+xml", // Output XHTML content type instead of default "text/html".
+    IsDevelopment: true, // Render will now recompile the templates on every HTML response.
 })
 // ...
 ~~~
@@ -113,7 +113,7 @@ home
 ~~~ go
 // ...
 r := render.Render(render.Options{
-  Layout: "layout",
+    Layout: "layout",
 })
 // ...
 ~~~
@@ -151,46 +151,46 @@ The `render.Render` will automatically set the proper Content-Type header based 
 package main
 
 import (
-  "encoding/xml"
-  "net/http"
+    "encoding/xml"
+    "net/http"
 
-  "github.com/unrolled/render"
+    "github.com/unrolled/render"
 )
 
 type ExampleXml struct {
-  XMLName xml.Name `xml:"example"`
-  One     string   `xml:"one,attr"`
-  Two     string   `xml:"two,attr"`
+    XMLName xml.Name `xml:"example"`
+    One     string   `xml:"one,attr"`
+    Two     string   `xml:"two,attr"`
 }
 
 func main() {
-  r := render.New(render.Options{})
-  mux := http.NewServeMux()
+    r := render.New(render.Options{})
+    mux := http.NewServeMux()
 
-  // This will set the Content-Type header to "application/octet-stream".
-  // Note that this does not receive a charset value.
-  mux.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
-    r.Data(w, http.StatusOK, []byte("Some binary data here."))
-  })
+    // This will set the Content-Type header to "application/octet-stream".
+    // Note that this does not receive a charset value.
+    mux.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
+        r.Data(w, http.StatusOK, []byte("Some binary data here."))
+    })
 
-  // This will set the Content-Type header to "application/json; charset=UTF-8".
-  mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
-    r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
-  })
+    // This will set the Content-Type header to "application/json; charset=UTF-8".
+    mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
+        r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
+    })
 
-  // This will set the Content-Type header to "text/xml; charset=UTF-8".
-  mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
-    r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
-  })
+    // This will set the Content-Type header to "text/xml; charset=UTF-8".
+    mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
+        r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
+    })
 
-  // This will set the Content-Type header to "text/html; charset=UTF-8".
-  mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
-    // Assumes you have a template in ./templates called "example.tmpl"
-    // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
-    r.HTML(w, http.StatusOK, "example", nil)
-  })
+    // This will set the Content-Type header to "text/html; charset=UTF-8".
+    mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
+        // Assumes you have a template in ./templates called "example.tmpl"
+        // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
+        r.HTML(w, http.StatusOK, "example", nil)
+    })
 
-  http.ListenAndServe("0.0.0.0:3000", mux)
+    http.ListenAndServe("0.0.0.0:3000", mux)
 }
 ~~~
 
@@ -200,48 +200,48 @@ In order to change the charset, you can set the `Charset` within the `render.Opt
 package main
 
 import (
-  "encoding/xml"
-  "net/http"
+    "encoding/xml"
+    "net/http"
 
-  "github.com/unrolled/render"
+    "github.com/unrolled/render"
 )
 
 type ExampleXml struct {
-  XMLName xml.Name `xml:"example"`
-  One     string   `xml:"one,attr"`
-  Two     string   `xml:"two,attr"`
+    XMLName xml.Name `xml:"example"`
+    One     string   `xml:"one,attr"`
+    Two     string   `xml:"two,attr"`
 }
 
 func main() {
-  r := render.New(render.Options{
-    Charset: "ISO-8859-1",
-  })
-  mux := http.NewServeMux()
+    r := render.New(render.Options{
+        Charset: "ISO-8859-1",
+    })
+    mux := http.NewServeMux()
 
-  // This will set the Content-Type header to "application/octet-stream".
-  // Note that this does not receive a charset value.
-  mux.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
-    r.Data(w, http.StatusOK, []byte("Some binary data here."))
-  })
+    // This will set the Content-Type header to "application/octet-stream".
+    // Note that this does not receive a charset value.
+    mux.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
+        r.Data(w, http.StatusOK, []byte("Some binary data here."))
+    })
 
-  // This will set the Content-Type header to "application/json; charset=ISO-8859-1".
-  mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
-    r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
-  })
+    // This will set the Content-Type header to "application/json; charset=ISO-8859-1".
+    mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
+        r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
+    })
 
-  // This will set the Content-Type header to "text/xml; charset=ISO-8859-1".
-  mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
-    r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
-  })
+    // This will set the Content-Type header to "text/xml; charset=ISO-8859-1".
+    mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
+        r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
+    })
 
-  // This will set the Content-Type header to "text/html; charset=ISO-8859-1".
-  mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
-    // Assumes you have a template in ./templates called "example.tmpl"
-    // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
-    r.HTML(w, http.StatusOK, "example", nil)
-  })
+    // This will set the Content-Type header to "text/html; charset=ISO-8859-1".
+    mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
+        // Assumes you have a template in ./templates called "example.tmpl"
+        // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
+        r.HTML(w, http.StatusOK, "example", nil)
+    })
 
-  http.ListenAndServe("0.0.0.0:3000", mux)
+    http.ListenAndServe("0.0.0.0:3000", mux)
 }
 ~~~
 
