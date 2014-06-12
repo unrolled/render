@@ -247,6 +247,31 @@ func main() {
 
 ## Integration Examples
 
+### [Goji](https://github.com/zenazn/goji)
+~~~ go
+// main.go
+package main
+
+import (
+    "net/http"
+
+    "github.com/unrolled/render"
+    "github.com/zenazn/goji"
+    "github.com/zenazn/goji/web"
+)
+
+func main() {
+    r := render.New(render.Options{
+        IndentJSON: true,
+    })
+
+    goji.Get("/", func(c web.C, w http.ResponseWriter, req *http.Request) {
+        r.JSON(w, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+    })
+    goji.Serve()  // Defaults to ":8000".
+}
+~~~
+
 ### [Negroni](https://github.com/codegangsta/negroni)
 ~~~ go
 // main.go
