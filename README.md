@@ -247,6 +247,33 @@ func main() {
 
 ## Integration Examples
 
+### [Gin](https://github.com/gin-gonic/gin)
+~~~ go
+// main.go
+package main
+
+import (
+    "net/http"
+
+    "github.com/gin-gonic/gin"
+    "github.com/unrolled/render"
+)
+
+func main() {
+    r := render.New(render.Options{
+        IndentJSON: true,
+    })
+
+    masterGin := gin.Default()
+
+    masterGin.GET("/", func(c *gin.Context) {
+        r.JSON(c.Writer, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+    })
+
+    masterGin.Run(":3000")
+}
+~~~
+
 ### [Goji](https://github.com/zenazn/goji)
 ~~~ go
 // main.go
