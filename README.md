@@ -5,12 +5,12 @@ Render is a package that provides functionality for easily rendering JSON, XML, 
 [API Reference](http://godoc.org/github.com/unrolled/render)
 
 ## Usage
-Render can be used with pretty much any web framework providing you can assess the `http.ResponseWriter` variable from your handler. The rendering functions simply wrap Go's existing functionality for marshaling and rendering the given data.
+Render can be used with pretty much any web framework providing you can access the `http.ResponseWriter` variable from your handler. The rendering functions simply wrap Go's existing functionality for marshaling and rendering the given data.
 
 - HTML: Uses the [html/template](http://golang.org/pkg/html/template/) package to render HTML templates.
 - JSON: Uses the [encoding/json](http://golang.org/pkg/encoding/json/) package to marshal data into a JSON-encoded response.
 - XML: Uses the [encoding/xml](http://golang.org/pkg/encoding/xml/) package to marshal data into an XML-encoded response.
-- Binary Data: Passes the incoming data strait through to the `http.ResponseWriter`.
+- Binary Data: Passes the incoming data straight through to the `http.ResponseWriter`.
 
 ~~~ go
 // main.go
