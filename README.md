@@ -1,8 +1,6 @@
-# Render
+# Render [![GoDoc](https://godoc.org/github.com/unrolled/render?status.png)](http://godoc.org/github.com/unrolled/render)
 
 Render is a package that provides functionality for easily rendering JSON, XML, and HTML templates. This package is based on the [Martini](https://github.com/go-martini/martini) [render](https://github.com/martini-contrib/render) work.
-
-[API Reference](http://godoc.org/github.com/unrolled/render)
 
 ## Usage
 Render can be used with pretty much any web framework providing you can access the `http.ResponseWriter` variable from your handler. The rendering functions simply wrap Go's existing functionality for marshaling and rendering the given data.
