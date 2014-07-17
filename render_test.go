@@ -419,7 +419,7 @@ func TestRenderDefaultCharsetHTML(t *testing.T) {
 
 	expect(t, res.Code, 200)
 	expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
-	// ContentLength should be deferred to the ResponseWriter and not Render
+	//ContentLength should be deferred to the ResponseWriter and not Render
 	expect(t, res.Header().Get(ContentLength), "")
 	expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
 }
@@ -464,7 +464,7 @@ func TestRenderNoRace(t *testing.T) {
 
 		expect(t, res.Code, 200)
 		expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
-		// ContentLength should be deferred to the ResponseWriter and not Render
+		//ContentLength should be deferred to the ResponseWriter and not Render
 		expect(t, res.Header().Get(ContentLength), "")
 		expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
 		done <- true
