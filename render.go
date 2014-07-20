@@ -48,8 +48,6 @@ package render
 
 import (
 	"bytes"
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -204,59 +202,57 @@ func (r *Render) compileTemplates() {
 	})
 }
 
-// Marshals the given interface object and writes the JSON response.
-func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
-	var result []byte
-	var err error
-	if r.opt.IndentJSON {
-		result, err = json.MarshalIndent(v, "", "  ")
-	} else {
-		result, err = json.Marshal(v)
-	}
+func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) {
+	err := e.Render(w, data)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	// JSON marshaled fine, write out the result.
-	w.Header().Set(ContentType, ContentJSON+r.compiledCharset)
-	w.WriteHeader(status)
-	if len(r.opt.PrefixJSON) > 0 {
-		w.Write(r.opt.PrefixJSON)
-	}
-	w.Write(result)
 }
 
 // Marshals the given interface object and writes the XML response.
 func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
-	var result []byte
-	var err error
-	if r.opt.IndentXML {
-		result, err = xml.MarshalIndent(v, "", "  ")
-	} else {
-		result, err = xml.Marshal(v)
-	}
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+	head := Head{
+		ContentType: ContentXML + r.compiledCharset,
+		Status:      status,
 	}
 
-	// XML marshaled fine, write out the result.
-	w.Header().Set(ContentType, ContentXML+r.compiledCharset)
-	w.WriteHeader(status)
-	if len(r.opt.PrefixXML) > 0 {
-		w.Write(r.opt.PrefixXML)
+	x := XML{
+		Head:   head,
+		Indent: r.opt.IndentXML,
+		Prefix: r.opt.PrefixXML,
 	}
-	w.Write(result)
+
+	r.Render(w, x, v)
+}
+
+// Marshals the given interface object and writes the JSON response.
+func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
+	head := Head{
+		ContentType: ContentJSON + r.compiledCharset,
+		Status:      status,
+	}
+
+	j := JSON{
+		Head:   head,
+		Indent: r.opt.IndentJSON,
+		Prefix: r.opt.PrefixJSON,
+	}
+
+	r.Render(w, j, v)
 }
 
 // Writes out the raw bytes as binary data.
 func (r *Render) Data(w http.ResponseWriter, status int, v []byte) {
-	if w.Header().Get(ContentType) == "" {
-		w.Header().Set(ContentType, ContentBinary)
+	head := Head{
+		ContentType: ContentBinary,
+		Status:      status,
 	}
-	w.WriteHeader(status)
-	w.Write(v)
+
+	d := Data{
+		Head: head,
+	}
+
+	r.Render(w, d, v)
 }
 
 // Builds up the HTML response from the specified template and bindings.
@@ -274,16 +270,18 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 		name = opt.Layout
 	}
 
-	out, err := r.execute(name, binding)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	head := Head{
+		ContentType: r.opt.HTMLContentType + r.compiledCharset,
+		Status:      status,
 	}
 
-	// Template rendered fine, write out the result.
-	w.Header().Set(ContentType, r.opt.HTMLContentType+r.compiledCharset)
-	w.WriteHeader(status)
-	w.Write(out.Bytes())
+	h := HTML{
+		Head:      head,
+		Name:      name,
+		Templates: r.templates,
+	}
+
+	r.Render(w, h, binding)
 }
 
 func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error) {
