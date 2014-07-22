@@ -58,13 +58,21 @@ import (
 )
 
 const (
-	ContentType    = "Content-Type"
-	ContentLength  = "Content-Length"
-	ContentBinary  = "application/octet-stream"
-	ContentJSON    = "application/json"
-	ContentHTML    = "text/html"
-	ContentXHTML   = "application/xhtml+xml"
-	ContentXML     = "text/xml"
+	// ContentType header constant.
+	ContentType = "Content-Type"
+	// ContentLength header constant.
+	ContentLength = "Content-Length"
+	// ContentBinary header value for binary data.
+	ContentBinary = "application/octet-stream"
+	// ContentJSON header value for JSON data.
+	ContentJSON = "application/json"
+	// ContentHTML header value for HTML data.
+	ContentHTML = "text/html"
+	// ContentXHTML header value for XHTML data.
+	ContentXHTML = "application/xhtml+xml"
+	// ContentXML header value for XML data.
+	ContentXML = "text/xml"
+	// Default character encoding.
 	defaultCharset = "UTF-8"
 )
 
@@ -129,7 +137,7 @@ type Render struct {
 	compiledCharset string
 }
 
-// Constructs a new Render instance with the supplied options.
+// New constructs a new Render instance with the supplied options.
 func New(options Options) *Render {
 	r := Render{
 		opt: options,
@@ -202,6 +210,7 @@ func (r *Render) compileTemplates() {
 	})
 }
 
+// Render is the generic function called by XML, JSON, Data, HTML, and can be called by custom implementations.
 func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) {
 	err := e.Render(w, data)
 	if err != nil {
@@ -209,7 +218,7 @@ func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) {
 	}
 }
 
-// Marshals the given interface object and writes the XML response.
+// XML marshals the given interface object and writes the XML response.
 func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
 	head := Head{
 		ContentType: ContentXML + r.compiledCharset,
@@ -225,7 +234,7 @@ func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
 	r.Render(w, x, v)
 }
 
-// Marshals the given interface object and writes the JSON response.
+// JSON marshals the given interface object and writes the JSON response.
 func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
 	head := Head{
 		ContentType: ContentJSON + r.compiledCharset,
@@ -241,7 +250,7 @@ func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
 	r.Render(w, j, v)
 }
 
-// Writes out the raw bytes as binary data.
+// Data writes out the raw bytes as binary data.
 func (r *Render) Data(w http.ResponseWriter, status int, v []byte) {
 	head := Head{
 		ContentType: ContentBinary,
@@ -255,7 +264,7 @@ func (r *Render) Data(w http.ResponseWriter, status int, v []byte) {
 	r.Render(w, d, v)
 }
 
-// Builds up the HTML response from the specified template and bindings.
+// HTML builds up the response from the specified template and bindings.
 func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) {
 	// If we are in development mode, recompile the templates on every HTML request.
 	if r.opt.IsDevelopment {

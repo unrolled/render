@@ -8,46 +8,50 @@ import (
 	"net/http"
 )
 
+// Engine is the generic interface for all responses.
 type Engine interface {
 	Render(http.ResponseWriter, interface{}) error
 }
 
+// Head defines the basic ContentType and Status fields.
 type Head struct {
 	ContentType string
 	Status      int
 }
 
-//Built-in XML renderer
+// XML built-in renderer.
 type XML struct {
 	Head
 	Indent bool
 	Prefix []byte
 }
 
-//Built-in JSON renderer
+// JSON built-in renderer.
 type JSON struct {
 	Head
 	Indent bool
 	Prefix []byte
 }
 
-//Build-in HTML renderer
+// HTML built-in renderer.
 type HTML struct {
 	Head
 	Name      string
 	Templates *template.Template
 }
 
-//Built-in binary data renderer
+// Data built-in renderer.
 type Data struct {
 	Head
 }
 
+// Write outputs the header content.
 func (h Head) Write(w http.ResponseWriter) {
 	w.Header().Set(ContentType, h.ContentType)
 	w.WriteHeader(h.Status)
 }
 
+// Render a data response.
 func (d Data) Render(w http.ResponseWriter, v interface{}) error {
 	c := w.Header().Get(ContentType)
 	if c != "" {
@@ -59,6 +63,7 @@ func (d Data) Render(w http.ResponseWriter, v interface{}) error {
 	return nil
 }
 
+// Render a JSON response.
 func (j JSON) Render(w http.ResponseWriter, v interface{}) error {
 	var result []byte
 	var err error
@@ -81,6 +86,7 @@ func (j JSON) Render(w http.ResponseWriter, v interface{}) error {
 	return nil
 }
 
+// Render an XML response.
 func (x XML) Render(w http.ResponseWriter, v interface{}) error {
 	var result []byte
 	var err error
@@ -103,6 +109,7 @@ func (x XML) Render(w http.ResponseWriter, v interface{}) error {
 	return nil
 }
 
+// Render a HTML response.
 func (h HTML) Render(w http.ResponseWriter, binding interface{}) error {
 	out := new(bytes.Buffer)
 	err := h.Templates.ExecuteTemplate(out, h.Name, binding)

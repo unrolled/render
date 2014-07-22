@@ -375,6 +375,3 @@ func main() {
     web.Run("0.0.0.0:3000")
 }
 ~~~
-
-## Authors
-* [Cory Jacobsen](http://github.com/unrolled)
