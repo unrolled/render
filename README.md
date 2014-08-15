@@ -18,7 +18,7 @@ import (
     "encoding/xml"
     "net/http"
 
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 type ExampleXml struct {
@@ -152,7 +152,7 @@ import (
     "encoding/xml"
     "net/http"
 
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 type ExampleXml struct {
@@ -201,7 +201,7 @@ import (
     "encoding/xml"
     "net/http"
 
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 type ExampleXml struct {
@@ -254,7 +254,7 @@ import (
     "net/http"
 
     "github.com/gin-gonic/gin"
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 func main() {
@@ -280,9 +280,9 @@ package main
 import (
     "net/http"
 
-    "github.com/unrolled/render"
     "github.com/zenazn/goji"
     "github.com/zenazn/goji/web"
+    "gopkg.in/unrolled/render.v1"
 )
 
 func main() {
@@ -306,7 +306,7 @@ import (
     "net/http"
 
     "github.com/codegangsta/negroni"
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 func main() {
@@ -334,7 +334,7 @@ import (
     "net/http"
 
     "github.com/pilu/traffic"
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 func main() {
@@ -360,7 +360,7 @@ import (
     "net/http"
 
     "github.com/hoisie/web"
-    "github.com/unrolled/render"
+    "gopkg.in/unrolled/render.v1"
 )
 
 func main() {
