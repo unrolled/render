@@ -67,7 +67,7 @@ func main() {
 
 ~~~ go
 // ...
-r := render.Render(render.Options{
+r := render.New(render.Options{
     Directory: "templates", // Specify what path to load the templates from.
     Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template.
     Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
@@ -110,7 +110,7 @@ home
 `render.Render` provides a `yield` function for layouts to access:
 ~~~ go
 // ...
-r := render.Render(render.Options{
+r := render.New(render.Options{
     Layout: "layout",
 })
 // ...
