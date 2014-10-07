@@ -1,4 +1,4 @@
-# Render [![GoDoc](https://godoc.org/github.com/unrolled/render?status.png)](http://godoc.org/github.com/unrolled/render)
+# Render [![GoDoc](http://godoc.org/github.com/unrolled/render?status.png)](http://godoc.org/github.com/unrolled/render)
 
 Render is a package that provides functionality for easily rendering JSON, XML, and HTML templates. This package is based on the [Martini](https://github.com/go-martini/martini) [render](https://github.com/martini-contrib/render) work.
 
@@ -63,11 +63,11 @@ func main() {
 ~~~
 
 ### Options
-`render.Render` comes with a variety of configuration options:
+Render comes with a variety of configuration options:
 
 ~~~ go
 // ...
-r := render.Render(render.Options{
+r := render.New(render.Options{
     Directory: "templates", // Specify what path to load the templates from.
     Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template.
     Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
@@ -85,7 +85,7 @@ r := render.Render(render.Options{
 ~~~
 
 ### Loading Templates
-By default the `render.Render` middleware will attempt to load templates with a '.tmpl' extension from the "templates" directory. Templates are found by traversing the templates directory and are named by path and basename. For instance, the following directory structure:
+By default Render will attempt to load templates with a '.tmpl' extension from the "templates" directory. Templates are found by traversing the templates directory and are named by path and basename. For instance, the following directory structure:
 
 ~~~
 templates/
@@ -107,10 +107,10 @@ home
 ~~~
 
 ### Layouts
-`render.Render` provides a `yield` function for layouts to access:
+Render provides a `yield` function for layouts to access:
 ~~~ go
 // ...
-r := render.Render(render.Options{
+r := render.New(render.Options{
     Layout: "layout",
 })
 // ...
@@ -143,7 +143,7 @@ r := render.Render(render.Options{
 ~~~
 
 ### Character Encodings
-The `render.Render` will automatically set the proper Content-Type header based on which function you call. See below for an example of what the default settings would output (note that UTF-8 is the default, and binary data does not output the charset):
+Render will automatically set the proper Content-Type header based on which function you call. See below for an example of what the default settings would output (note that UTF-8 is the default, and binary data does not output the charset):
 ~~~ go
 // main.go
 package main
