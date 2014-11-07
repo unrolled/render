@@ -62,8 +62,8 @@ func main() {
 <h1>Hello {{.}}.</h1>
 ~~~
 
-### Options
-Render comes with a variety of configuration options:
+### Available Options
+Render comes with a variety of configuration options _(Note: these are not the default option values. See the defaults below.)_:
 
 ~~~ go
 // ...
@@ -82,6 +82,24 @@ r := render.New(render.Options{
     IsDevelopment: true, // Render will now recompile the templates on every HTML response.
 })
 // ...
+~~~
+
+### Default Options
+These are the preset options for Render:
+
+~~~ go
+    Directory: "templates",
+    Layout: "",
+    Extensions: []string{".tmpl"},
+    Funcs: []template.FuncMap{},
+    Delims: render.Delims{"{{", "}}"},
+    Charset: "UTF-8",
+    IndentJSON: false,
+    IndentXML: false,
+    PrefixJSON: []byte(""),
+    PrefixXML: []byte(""),
+    HTMLContentType: "text/html",
+    IsDevelopment: false,
 ~~~
 
 ### Loading Templates
