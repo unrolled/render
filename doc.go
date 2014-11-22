@@ -1,4 +1,4 @@
-/*Package render is a package that provides functionality for easily rendering JSON, XML, and HTML templates.
+/*Package render is a package that provides functionality for easily rendering JSON, XML, binary data, and HTML templates.
 
   package main
 
@@ -6,7 +6,7 @@
       "encoding/xml"
       "net/http"
 
-      "gopkg.in/unrolled/render.v1"
+      "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
   )
 
   type ExampleXml struct {

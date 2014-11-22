@@ -12,6 +12,8 @@ import (
 	"github.com/eknkc/amber"
 )
 
+// go test -tags=integration
+
 type Amber struct {
 	Head
 	Template *template.Template

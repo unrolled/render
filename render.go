@@ -30,7 +30,7 @@ const (
 	defaultCharset = "UTF-8"
 )
 
-// Included helper functions for use when rendering html.
+// Included helper functions for use when rendering HTML.
 var helperFuncs = template.FuncMap{
 	"yield": func() (string, error) {
 		return "", fmt.Errorf("yield called with no layout defined")
@@ -83,7 +83,7 @@ type HTMLOptions struct {
 }
 
 // Render is a service that provides functions for easily writing JSON, XML,
-// Binary Data, and HTML templates out to a http Response.
+// binary data, and HTML templates out to a HTTP Response.
 type Render struct {
 	// Customize Secure with an Options struct.
 	opt             Options
