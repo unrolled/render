@@ -16,7 +16,7 @@
   }
 
   func main() {
-      r := render.New(render.Options{})
+      r := render.New()
       mux := http.NewServeMux()
 
       mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {

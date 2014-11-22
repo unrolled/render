@@ -92,9 +92,16 @@ type Render struct {
 }
 
 // New constructs a new Render instance with the supplied options.
-func New(options Options) *Render {
+func New(options ...Options) *Render {
+	var o Options
+	if len(options) == 0 {
+		o = Options{}
+	} else {
+		o = options[0]
+	}
+
 	r := Render{
-		opt: options,
+		opt: o,
 	}
 
 	r.prepareOptions()

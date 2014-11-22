@@ -28,7 +28,7 @@ type ExampleXml struct {
 }
 
 func main() {
-    r := render.New(render.Options{})
+    r := render.New()
     mux := http.NewServeMux()
 
     mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
@@ -88,6 +88,11 @@ r := render.New(render.Options{
 These are the preset options for Render:
 
 ~~~ go
+r := render.New()
+
+// Is the same as the default configuration options:
+
+r := render.New(render.Options{
     Directory: "templates",
     Layout: "",
     Extensions: []string{".tmpl"},
@@ -100,6 +105,7 @@ These are the preset options for Render:
     PrefixXML: []byte(""),
     HTMLContentType: "text/html",
     IsDevelopment: false,
+})
 ~~~
 
 ### Loading Templates

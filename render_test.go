@@ -22,9 +22,7 @@ type GreetingXML struct {
 }
 
 func TestRenderJSON(t *testing.T) {
-	render := New(Options{
-	// nothing here to configure
-	})
+	render := New()
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, 299, Greeting{"hello", "world"})
@@ -80,9 +78,7 @@ func TestRenderIndentedJSON(t *testing.T) {
 }
 
 func TestRenderJSONWithError(t *testing.T) {
-	render := New(Options{
-	// nothing here to configure
-	})
+	render := New(Options{}, Options{}, Options{}, Options{})
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, 299, math.NaN())
