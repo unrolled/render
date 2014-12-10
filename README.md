@@ -43,6 +43,10 @@ func main() {
         r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
     })
 
+    mux.HandleFunc("/jsonp", func(w http.ResponseWriter, req *http.Request) {
+        r.JSONP(w, http.StatusOK, "callbackName", map[string]string{"hello": "jsonp"})
+    })
+
     mux.HandleFunc("/xml", func(w http.ResponseWriter, req *http.Request) {
         r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
     })

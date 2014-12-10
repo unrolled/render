@@ -33,6 +33,13 @@ type JSON struct {
 	Prefix []byte
 }
 
+// JSON built-in renderer.
+type JSONP struct {
+	Head
+	Indent bool
+	Callback string
+}
+
 // HTML built-in renderer.
 type HTML struct {
 	Head
@@ -83,6 +90,28 @@ func (j JSON) Render(w http.ResponseWriter, v interface{}) error {
 		w.Write(j.Prefix)
 	}
 	w.Write(result)
+	return nil
+}
+
+// Render a JSONP response.
+func (j JSONP) Render(w http.ResponseWriter, v interface{}) error {
+	var result []byte
+	var err error
+
+	if j.Indent {
+		result, err = json.MarshalIndent(v, "", "  ")
+	} else {
+		result, err = json.Marshal(v)
+	}
+	if err != nil {
+		return err
+	}
+
+	// JSON marshaled fine, write out the result.
+	j.Head.Write(w)
+	w.Write([]byte(j.Callback + "("))
+	w.Write(result)
+	w.Write([]byte(");"))
 	return nil
 }
 

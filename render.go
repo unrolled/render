@@ -20,6 +20,8 @@ const (
 	ContentBinary = "application/octet-stream"
 	// ContentJSON header value for JSON data.
 	ContentJSON = "application/json"
+  // ContentJSONP header value for JSONP data.
+  ContentJSONP = "application/javascript"
 	// ContentHTML header value for HTML data.
 	ContentHTML = "text/html"
 	// ContentXHTML header value for XHTML data.
@@ -206,6 +208,22 @@ func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
 		Head:   head,
 		Indent: r.opt.IndentJSON,
 		Prefix: r.opt.PrefixJSON,
+	}
+
+	r.Render(w, j, v)
+}
+
+// JSONP marshals the given interface object and writes the JSON response.
+func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v interface{}) {
+	head := Head{
+		ContentType: ContentJSONP + r.compiledCharset,
+		Status:      status,
+	}
+
+	j := JSONP{
+		Head:   head,
+		Indent: r.opt.IndentJSON,
+		Callback: callback,
 	}
 
 	r.Render(w, j, v)
