@@ -33,7 +33,7 @@ type JSON struct {
 	Prefix []byte
 }
 
-// JSON built-in renderer.
+// JSONP built-in renderer.
 type JSONP struct {
 	Head
 	Indent bool
