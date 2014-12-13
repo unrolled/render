@@ -91,6 +91,43 @@ func TestRenderJSONWithError(t *testing.T) {
 	expect(t, res.Code, 500)
 }
 
+func TestRenderJSONP(t *testing.T) {
+	render := New()
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		render.JSONP(w, 299, "helloCallback", Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expect(t, res.Code, 299)
+	expect(t, res.Header().Get(ContentType), ContentJSONP+"; charset=UTF-8")
+	expect(t, res.Body.String(), `helloCallback({"one":"hello","two":"world"});`)
+}
+
+func TestRenderIndentedJSONP(t *testing.T) {
+	render := New(Options{
+		IndentJSON: true,
+	})
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		render.JSONP(w, http.StatusOK, "helloCallback", Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentJSONP+"; charset=UTF-8")
+	expect(t, res.Body.String(), `helloCallback({
+  "one": "hello",
+  "two": "world"
+});`)
+}
+
 func TestRenderXML(t *testing.T) {
 	render := New(Options{
 	// nothing here to configure
