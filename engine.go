@@ -36,7 +36,7 @@ type JSON struct {
 // JSONP built-in renderer.
 type JSONP struct {
 	Head
-	Indent bool
+	Indent   bool
 	Callback string
 }
 

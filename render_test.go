@@ -128,6 +128,20 @@ func TestRenderIndentedJSONP(t *testing.T) {
 });`)
 }
 
+func TestRenderJSONPWithError(t *testing.T) {
+	render := New()
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		render.JSONP(w, 299, "helloCallback", math.NaN())
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expect(t, res.Code, 500)
+}
+
 func TestRenderXML(t *testing.T) {
 	render := New(Options{
 	// nothing here to configure
