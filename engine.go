@@ -30,7 +30,7 @@ type XML struct {
 type JSON struct {
 	Head
 	Indent       bool
-	UnEsacpeHTML bool
+	UnEscapeHTML bool
 	Prefix       []byte
 }
 
@@ -87,7 +87,7 @@ func (j JSON) Render(w http.ResponseWriter, v interface{}) error {
 	}
 
 	// unescape html
-	if j.UnEsacpeHTML {
+	if j.UnEscapeHTML {
 		result = bytes.Replace(result, []byte("\\u003c"), []byte("<"), -1)
 		result = bytes.Replace(result, []byte("\\u003e"), []byte(">"), -1)
 		result = bytes.Replace(result, []byte("\\u0026"), []byte("&"), -1)
