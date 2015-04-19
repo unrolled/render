@@ -73,6 +73,12 @@ Render comes with a variety of configuration options _(Note: these are not the d
 // ...
 r := render.New(render.Options{
     Directory: "templates", // Specify what path to load the templates from.
+    Asset: func(name string) ([]byte, error) { // Load from an Asset function instead of file.
+      return []byte("template content"), nil
+    },
+    AssetNames: func() []string { // Return a list of asset names for the Asset function
+      return []string{"filename.tmpl"}
+    },
     Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template.
     Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
     Funcs: []template.FuncMap{AppHelpers}, // Specify helper function maps for templates to access.
@@ -98,6 +104,8 @@ r := render.New()
 
 r := render.New(render.Options{
     Directory: "templates",
+    Asset: nil,
+    AssetNames: nil,
     Layout: "",
     Extensions: []string{".tmpl"},
     Funcs: []template.FuncMap{},
@@ -133,6 +141,9 @@ admin/index
 admin/edit
 home
 ~~~
+
+You can also load templates from memory by providing the Asset and AssetNames options,
+e.g. when generating an asset file using [go-bindata][https://github.com/jteeuwen/go-bindata].
 
 ### Layouts
 Render provides a `yield` function for layouts to access:
