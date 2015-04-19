@@ -143,7 +143,7 @@ home
 ~~~
 
 You can also load templates from memory by providing the Asset and AssetNames options,
-e.g. when generating an asset file using [go-bindata][https://github.com/jteeuwen/go-bindata].
+e.g. when generating an asset file using [go-bindata](https://github.com/jteeuwen/go-bindata).
 
 ### Layouts
 Render provides a `yield` function for layouts to access:
