@@ -3,6 +3,7 @@ package render
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"html/template"
 	"math"
 	"net/http"
@@ -545,6 +546,38 @@ func TestRenderNoRace(t *testing.T) {
 	go doreq()
 	<-done
 	<-done
+}
+
+func TestLoadFromAssets(t *testing.T) {
+	render := New(Options{
+		Asset: func(file string) ([]byte, error) {
+			switch file {
+			case "templates/test.tmpl":
+				return []byte("<h1>gophers</h1>\n"), nil
+			case "templates/layout.tmpl":
+				return []byte("head\n{{ yield }}\nfoot\n"), nil
+			default:
+				return nil, errors.New("file not found: " + file)
+			}
+		},
+		AssetNames: func() []string {
+			return []string{"templates/test.tmpl", "templates/layout.tmpl"}
+		},
+	})
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		render.HTML(w, http.StatusOK, "test", "gophers", HTMLOptions{
+			Layout: "layout",
+		})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expect(t, res.Code, 200)
+	expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
+	expect(t, res.Body.String(), "head\n<h1>gophers</h1>\n\nfoot\n")
 }
 
 /* Test Helpers */
