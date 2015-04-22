@@ -90,6 +90,7 @@ r := render.New(render.Options{
     PrefixXML: []byte("<?xml version='1.0' encoding='UTF-8'?>"), // Prefixes XML responses with the given bytes.
     HTMLContentType: "application/xhtml+xml", // Output XHTML content type instead of default "text/html".
     IsDevelopment: true, // Render will now recompile the templates on every HTML response.
+    UnEscapeHTML: true, // Replace ensure '&<>' are output correctly (JSON only).
 })
 // ...
 ~~~
@@ -117,6 +118,7 @@ r := render.New(render.Options{
     PrefixXML: []byte(""),
     HTMLContentType: "text/html",
     IsDevelopment: false,
+    UnEscapeHTML: false,
 })
 ~~~
 
@@ -283,6 +285,34 @@ func main() {
 ~~~
 
 ## Integration Examples
+
+### [Echo](https://github.com/labstack/echo)
+~~~ go
+// main.go
+package main
+
+import (
+	"net/http"
+
+	"github.com/labstack/echo"
+	"github.com/unrolled/render" // or "gopkg.in/unrolled/render.v1"
+)
+
+func main() {
+	r := render.New(render.Options{
+		IndentJSON: true,
+	})
+
+	e := echo.New()
+
+	// Routes
+	e.Get("/", func(c *echo.Context) {
+		r.JSON(c.Response, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+	})
+
+	e.Run(":3000")
+}
+~~~
 
 ### [Gin](https://github.com/gin-gonic/gin)
 ~~~ go

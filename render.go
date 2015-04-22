@@ -70,17 +70,17 @@ type Options struct {
 	Charset string
 	// Outputs human readable JSON.
 	IndentJSON bool
-	// Outputs human readable XML.
+	// Outputs human readable XML. Default is false.
 	IndentXML bool
-	// Prefixes the JSON output with the given bytes.
+	// Prefixes the JSON output with the given bytes. Default is false.
 	PrefixJSON []byte
 	// Prefixes the XML output with the given bytes.
 	PrefixXML []byte
 	// Allows changing of output to XHTML instead of HTML. Default is "text/html"
 	HTMLContentType string
-	// If IsDevelopment is set to true, this will recompile the templates on every request. Default if false.
+	// If IsDevelopment is set to true, this will recompile the templates on every request. Default is false.
 	IsDevelopment bool
-	// unescape html utf-8 characters(&<>) to orignal
+	// Unescape HTML characters "&<>" to their original values. Default is false.
 	UnEscapeHTML bool
 }
 

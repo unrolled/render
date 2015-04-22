@@ -86,7 +86,7 @@ func (j JSON) Render(w http.ResponseWriter, v interface{}) error {
 		return err
 	}
 
-	// unescape html
+	// Unescape HTML if needed.
 	if j.UnEscapeHTML {
 		result = bytes.Replace(result, []byte("\\u003c"), []byte("<"), -1)
 		result = bytes.Replace(result, []byte("\\u003e"), []byte(">"), -1)
