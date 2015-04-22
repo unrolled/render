@@ -80,6 +80,8 @@ type Options struct {
 	HTMLContentType string
 	// If IsDevelopment is set to true, this will recompile the templates on every request. Default if false.
 	IsDevelopment bool
+	// unescape html utf-8 characters(&<>) to orignal
+	UnEscapeHTML bool
 }
 
 // HTMLOptions is a struct for overriding some rendering Options for specific HTML call.
@@ -261,9 +263,10 @@ func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
 	}
 
 	j := JSON{
-		Head:   head,
-		Indent: r.opt.IndentJSON,
-		Prefix: r.opt.PrefixJSON,
+		Head:         head,
+		Indent:       r.opt.IndentJSON,
+		Prefix:       r.opt.PrefixJSON,
+		UnEscapeHTML: r.opt.UnEscapeHTML,
 	}
 
 	r.Render(w, j, v)

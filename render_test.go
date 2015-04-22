@@ -114,6 +114,23 @@ func TestRenderJSONWithError(t *testing.T) {
 	expect(t, res.Code, 500)
 }
 
+func TestRenderJSONWithUnEscapeHTML(t *testing.T) {
+	render := New(Options{
+		UnEscapeHTML: true,
+	})
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	output := res.Body.String()
+	//fmt.Println(str)
+	expect(t, output, `{"one":"<span>test&test</span>","two":"<div>test&test</div>"}`)
+}
+
 func TestRenderJSONP(t *testing.T) {
 	render := New()
 
