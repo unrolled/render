@@ -82,6 +82,8 @@ type Options struct {
 	IsDevelopment bool
 	// Unescape HTML characters "&<>" to their original values. Default is false.
 	UnEscapeHTML bool
+	// Streams JSON responses instead of marshalling prior to sending. Default is false.
+	StreamingJSON bool
 }
 
 // HTMLOptions is a struct for overriding some rendering Options for specific HTML call.
@@ -263,10 +265,11 @@ func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
 	}
 
 	j := JSON{
-		Head:         head,
-		Indent:       r.opt.IndentJSON,
-		Prefix:       r.opt.PrefixJSON,
-		UnEscapeHTML: r.opt.UnEscapeHTML,
+		Head:          head,
+		Indent:        r.opt.IndentJSON,
+		Prefix:        r.opt.PrefixJSON,
+		UnEscapeHTML:  r.opt.UnEscapeHTML,
+		StreamingJSON: r.opt.StreamingJSON,
 	}
 
 	r.Render(w, j, v)
