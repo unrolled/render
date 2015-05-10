@@ -160,7 +160,7 @@ func (r *Render) compileTemplatesFromDir() {
 
 		ext := ""
 		if strings.Index(rel, ".") != -1 {
-			ext = "." + strings.Join(strings.Split(rel, ".")[1:], ".")
+			ext = filepath.Ext(rel)
 		}
 
 		for _, extension := range r.opt.Extensions {
