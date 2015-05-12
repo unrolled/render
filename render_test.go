@@ -665,7 +665,7 @@ func TestLoadFromAssets(t *testing.T) {
 func TestCompileTemplatesFromDir(t *testing.T) {
 	// pupulate test dirs and files
 	// baseName := "render-templates-test"
-	baseDir := "/tmp/render-templates-test"
+	baseDir := "render-templates-test"
 	defer os.RemoveAll(baseDir)
 	dirname1 := baseDir + "/subdir"
 	dirname2 := baseDir + "/dedicated.tmpl"
