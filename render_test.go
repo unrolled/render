@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -661,7 +662,49 @@ func TestLoadFromAssets(t *testing.T) {
 	expect(t, res.Body.String(), "head\n<h1>gophers</h1>\n\nfoot\n")
 }
 
-/* Benchmarks */
+func TestCompileTemplatesFromDir(t *testing.T) {
+	// pupulate test dirs and files
+	// baseName := "render-templates-test"
+	baseDir := "/tmp/render-templates-test"
+	defer os.RemoveAll(baseDir)
+	dirname1 := baseDir + "/subdir"
+	dirname2 := baseDir + "/dedicated.tmpl"
+	fname0 := baseDir + "/0.tmpl"
+	fname1 := dirname1 + "/1.tmpl"
+	fnameShouldNotParsed := dirname2 + "/bad.tmpl"
+	fname0Rel := "0"
+	fname1Rel := "subdir/1"
+	fnameShouldNotParsedRel := "dedicated.tmpl/bad"
+	if err := os.MkdirAll(dirname1, 0666); err != nil {
+		panic(err)
+	}
+	if err := os.MkdirAll(dirname2, 0666); err != nil {
+		panic(err)
+	}
+
+	if _, err := os.Create(fname1); err != nil {
+		panic(err)
+	}
+	if _, err := os.Create(fnameShouldNotParsed); err != nil {
+		panic(err)
+	}
+	if _, err := os.Create(fname0); err != nil {
+		panic(err)
+	}
+
+	r := New(Options{
+		Directory:  baseDir,
+		Extensions: []string{".tmpl", ".html"},
+	})
+	r.compileTemplatesFromDir()
+
+	expect(t, r.templates.Lookup(fname1Rel) != nil, true)
+	expect(t, r.templates.Lookup(fname0Rel) != nil, true)
+	expect(t, r.templates.Lookup(fnameShouldNotParsedRel) == nil, true)
+
+}
+
+/* benchmarks */
 func BenchmarkNormalJSON(b *testing.B) {
 	render := New()
 

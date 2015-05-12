@@ -153,12 +153,6 @@ func (r *Render) compileTemplatesFromDir() {
 
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		// fix dir bug: some dir might be named to: "users.tmpl", "local.html"
-		// if is a dir, return immediately.
-		if info == nil || info.IsDir() {
-			return nil
-		}
-
 		rel, err := filepath.Rel(dir, path)
 		if err != nil {
 			return err
@@ -171,6 +165,12 @@ func (r *Render) compileTemplatesFromDir() {
 
 		for _, extension := range r.opt.Extensions {
 			if ext == extension {
+				// fmt.Println("path: ", path)
+				// fix dir bug: some dir might be named to: "users.tmpl", "local.html"
+				// if is a dir, return immediately.
+				if info != nil && info.IsDir() {
+					return filepath.SkipDir
+				}
 
 				buf, err := ioutil.ReadFile(path)
 				if err != nil {
@@ -190,7 +190,6 @@ func (r *Render) compileTemplatesFromDir() {
 				break
 			}
 		}
-
 		return nil
 	})
 }
