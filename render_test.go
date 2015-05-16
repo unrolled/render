@@ -8,7 +8,6 @@ import (
 	"math"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -663,35 +662,11 @@ func TestLoadFromAssets(t *testing.T) {
 }
 
 func TestCompileTemplatesFromDir(t *testing.T) {
-	// pupulate test dirs and files
-	// baseName := "render-templates-test"
-	baseDir := "render-templates-test"
-	defer os.RemoveAll(baseDir)
-	dirname1 := baseDir + "/subdir"
-	dirname2 := baseDir + "/dedicated.tmpl"
-	fname0 := baseDir + "/0.tmpl"
-	fname1 := dirname1 + "/1.tmpl"
-	fnameShouldParsed := dirname2 + "/notbad.tmpl"
+	baseDir := "fixtures/template-dir-test"
 	fname0Rel := "0"
 	fname1Rel := "subdir/1"
 	fnameShouldParsedRel := "dedicated.tmpl/notbad"
 	dirShouldNotParsedRel := "dedicated"
-	if err := os.MkdirAll(dirname1, 0666); err != nil {
-		panic(err)
-	}
-	if err := os.MkdirAll(dirname2, 0666); err != nil {
-		panic(err)
-	}
-
-	if _, err := os.Create(fname1); err != nil {
-		panic(err)
-	}
-	if _, err := os.Create(fnameShouldParsed); err != nil {
-		panic(err)
-	}
-	if _, err := os.Create(fname0); err != nil {
-		panic(err)
-	}
 
 	r := New(Options{
 		Directory:  baseDir,
