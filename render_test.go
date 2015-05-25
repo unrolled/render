@@ -661,7 +661,27 @@ func TestLoadFromAssets(t *testing.T) {
 	expect(t, res.Body.String(), "head\n<h1>gophers</h1>\n\nfoot\n")
 }
 
-/* Benchmarks */
+func TestCompileTemplatesFromDir(t *testing.T) {
+	baseDir := "fixtures/template-dir-test"
+	fname0Rel := "0"
+	fname1Rel := "subdir/1"
+	fnameShouldParsedRel := "dedicated.tmpl/notbad"
+	dirShouldNotParsedRel := "dedicated"
+
+	r := New(Options{
+		Directory:  baseDir,
+		Extensions: []string{".tmpl", ".html"},
+	})
+	r.compileTemplatesFromDir()
+
+	expect(t, r.templates.Lookup(fname1Rel) != nil, true)
+	expect(t, r.templates.Lookup(fname0Rel) != nil, true)
+	expect(t, r.templates.Lookup(fnameShouldParsedRel) != nil, true)
+	expect(t, r.templates.Lookup(dirShouldNotParsedRel) == nil, true)
+
+}
+
+/* benchmarks */
 func BenchmarkNormalJSON(b *testing.B) {
 	render := New()
 

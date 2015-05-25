@@ -153,6 +153,15 @@ func (r *Render) compileTemplatesFromDir() {
 
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		// fmt.Println("path: ", path)
+		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html"
+		// These dirs should be excluded as they are not valid golang templates, but files under
+		// them should be treat as normal.
+		// if is a dir, return immediately.(dir is not a valid golang template)
+		if info == nil || info.IsDir() {
+			return nil
+		}
+
 		rel, err := filepath.Rel(dir, path)
 		if err != nil {
 			return err
@@ -160,12 +169,11 @@ func (r *Render) compileTemplatesFromDir() {
 
 		ext := ""
 		if strings.Index(rel, ".") != -1 {
-			ext = "." + strings.Join(strings.Split(rel, ".")[1:], ".")
+			ext = filepath.Ext(rel)
 		}
 
 		for _, extension := range r.opt.Extensions {
 			if ext == extension {
-
 				buf, err := ioutil.ReadFile(path)
 				if err != nil {
 					panic(err)
@@ -184,7 +192,6 @@ func (r *Render) compileTemplatesFromDir() {
 				break
 			}
 		}
-
 		return nil
 	})
 }
