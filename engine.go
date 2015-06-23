@@ -169,13 +169,17 @@ func (x XML) Render(w http.ResponseWriter, v interface{}) error {
 
 // Render a HTML response.
 func (h HTML) Render(w http.ResponseWriter, binding interface{}) error {
-	out := new(bytes.Buffer)
+	// Retrieve a buffer from the pool to write to.
+	out := bufPool.Get()
 	err := h.Templates.ExecuteTemplate(out, h.Name, binding)
 	if err != nil {
 		return err
 	}
 
 	h.Head.Write(w)
-	w.Write(out.Bytes())
+	out.WriteTo(w)
+
+	// Return the buffer to the pool.
+	bufPool.Put(out)
 	return nil
 }
