@@ -1,6 +1,6 @@
 # Render [![GoDoc](http://godoc.org/github.com/unrolled/render?status.svg)](http://godoc.org/github.com/unrolled/render) [![Build Status](https://travis-ci.org/unrolled/render.svg)](https://travis-ci.org/unrolled/render)
 
-Render is a package that provides functionality for easily rendering JSON, XML, binary data, and HTML templates. This package is based on the [Martini](https://github.com/go-martini/martini) [render](https://github.com/martini-contrib/render) work.
+Render is a package that provides functionality for easily rendering JSON, XML, text, binary data, and HTML templates. This package is based on the [Martini](https://github.com/go-martini/martini) [render](https://github.com/martini-contrib/render) work.
 
 ## Usage
 Render can be used with pretty much any web framework providing you can access the `http.ResponseWriter` from your handler. The rendering functions simply wraps Go's existing functionality for marshaling and rendering data.
@@ -9,6 +9,7 @@ Render can be used with pretty much any web framework providing you can access t
 - JSON: Uses the [encoding/json](http://golang.org/pkg/encoding/json/) package to marshal data into a JSON-encoded response.
 - XML: Uses the [encoding/xml](http://golang.org/pkg/encoding/xml/) package to marshal data into an XML-encoded response.
 - Binary data: Passes the incoming data straight through to the `http.ResponseWriter`.
+- Text: Passes the incoming string straight through to the `http.ResponseWriter`.
 
 ~~~ go
 // main.go
@@ -39,6 +40,10 @@ func main() {
         r.Data(w, http.StatusOK, []byte("Some binary data here."))
     })
 
+    mux.HandleFunc("/text", func(w http.ResponseWriter, req *http.Request) {
+        r.Text(w, http.StatusOK, "Plain text here")
+    })
+
     mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
         r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
     })
@@ -57,7 +62,7 @@ func main() {
         r.HTML(w, http.StatusOK, "example", nil)
     })
 
-    http.ListenAndServe("0.0.0.0:3000", mux)
+    http.ListenAndServe("127.0.0.1:3000", mux)
 }
 ~~~
 
@@ -229,6 +234,11 @@ func main() {
         r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
     })
 
+    // This will set the Content-Type header to "text/plain; charset=UTF-8".
+    mux.HandleFunc("/text", func(w http.ResponseWriter, req *http.Request) {
+        r.Text(w, http.StatusOK, "Plain text here")
+    })
+
     // This will set the Content-Type header to "text/html; charset=UTF-8".
     mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
         // Assumes you have a template in ./templates called "example.tmpl"
@@ -236,7 +246,7 @@ func main() {
         r.HTML(w, http.StatusOK, "example", nil)
     })
 
-    http.ListenAndServe("0.0.0.0:3000", mux)
+    http.ListenAndServe("127.0.0.1:3000", mux)
 }
 ~~~
 
@@ -280,6 +290,11 @@ func main() {
         r.XML(w, http.StatusOK, ExampleXml{One: "hello", Two: "xml"})
     })
 
+    // This will set the Content-Type header to "text/plain; charset=ISO-8859-1".
+    mux.HandleFunc("/text", func(w http.ResponseWriter, req *http.Request) {
+        r.Text(w, http.StatusOK, "Plain text here")
+    })
+
     // This will set the Content-Type header to "text/html; charset=ISO-8859-1".
     mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
         // Assumes you have a template in ./templates called "example.tmpl"
@@ -287,7 +302,7 @@ func main() {
         r.HTML(w, http.StatusOK, "example", nil)
     })
 
-    http.ListenAndServe("0.0.0.0:3000", mux)
+    http.ListenAndServe("127.0.0.1:3000", mux)
 }
 ~~~
 
@@ -313,9 +328,10 @@ func main() {
 	e := echo.New()
 
 	// Routes
-	e.Get("/", func(c *echo.Context) {
-		r.JSON(c.Response, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
-	})
+	e.Get("/", func(c *echo.Context) error {
+        r.JSON(c.Response().Writer(), http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
+        return nil
+    })
 
 	e.Run(":3000")
 }
@@ -448,6 +464,6 @@ func main() {
         r.JSON(ctx, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
     })
 
-    web.Run("0.0.0.0:3000")
+    web.Run(":3000")
 }
 ~~~

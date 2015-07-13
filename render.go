@@ -12,18 +12,20 @@ import (
 )
 
 const (
-	// ContentType header constant.
-	ContentType = "Content-Type"
-	// ContentLength header constant.
-	ContentLength = "Content-Length"
 	// ContentBinary header value for binary data.
 	ContentBinary = "application/octet-stream"
+	// ContentHTML header value for HTML data.
+	ContentHTML = "text/html"
 	// ContentJSON header value for JSON data.
 	ContentJSON = "application/json"
 	// ContentJSONP header value for JSONP data.
 	ContentJSONP = "application/javascript"
-	// ContentHTML header value for HTML data.
-	ContentHTML = "text/html"
+	// ContentLength header constant.
+	ContentLength = "Content-Length"
+	// ContentText header value for Text data.
+	ContentText = "text/plain"
+	// ContentType header constant.
+	ContentType = "Content-Type"
 	// ContentXHTML header value for XHTML data.
 	ContentXHTML = "application/xhtml+xml"
 	// ContentXML header value for XML data.
@@ -245,62 +247,41 @@ func (r *Render) compileTemplatesFromAsset() {
 	}
 }
 
+func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error) {
+	buf := new(bytes.Buffer)
+	return buf, r.templates.ExecuteTemplate(buf, name, binding)
+}
+
+func (r *Render) addYield(name string, binding interface{}) {
+	funcs := template.FuncMap{
+		"yield": func() (template.HTML, error) {
+			buf, err := r.execute(name, binding)
+			// Return safe HTML here since we are rendering our own template.
+			return template.HTML(buf.String()), err
+		},
+		"current": func() (string, error) {
+			return name, nil
+		},
+	}
+	r.templates.Funcs(funcs)
+}
+
+func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
+	if len(htmlOpt) > 0 {
+		return htmlOpt[0]
+	}
+
+	return HTMLOptions{
+		Layout: r.opt.Layout,
+	}
+}
+
 // Render is the generic function called by XML, JSON, Data, HTML, and can be called by custom implementations.
 func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) {
 	err := e.Render(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-}
-
-// XML marshals the given interface object and writes the XML response.
-func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
-	head := Head{
-		ContentType: ContentXML + r.compiledCharset,
-		Status:      status,
-	}
-
-	x := XML{
-		Head:   head,
-		Indent: r.opt.IndentXML,
-		Prefix: r.opt.PrefixXML,
-	}
-
-	r.Render(w, x, v)
-}
-
-// JSON marshals the given interface object and writes the JSON response.
-func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
-	head := Head{
-		ContentType: ContentJSON + r.compiledCharset,
-		Status:      status,
-	}
-
-	j := JSON{
-		Head:          head,
-		Indent:        r.opt.IndentJSON,
-		Prefix:        r.opt.PrefixJSON,
-		UnEscapeHTML:  r.opt.UnEscapeHTML,
-		StreamingJSON: r.opt.StreamingJSON,
-	}
-
-	r.Render(w, j, v)
-}
-
-// JSONP marshals the given interface object and writes the JSON response.
-func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v interface{}) {
-	head := Head{
-		ContentType: ContentJSONP + r.compiledCharset,
-		Status:      status,
-	}
-
-	j := JSONP{
-		Head:     head,
-		Indent:   r.opt.IndentJSON,
-		Callback: callback,
-	}
-
-	r.Render(w, j, v)
 }
 
 // Data writes out the raw bytes as binary data.
@@ -346,31 +327,66 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 	r.Render(w, h, binding)
 }
 
-func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error) {
-	buf := new(bytes.Buffer)
-	return buf, r.templates.ExecuteTemplate(buf, name, binding)
+// JSON marshals the given interface object and writes the JSON response.
+func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
+	head := Head{
+		ContentType: ContentJSON + r.compiledCharset,
+		Status:      status,
+	}
+
+	j := JSON{
+		Head:          head,
+		Indent:        r.opt.IndentJSON,
+		Prefix:        r.opt.PrefixJSON,
+		UnEscapeHTML:  r.opt.UnEscapeHTML,
+		StreamingJSON: r.opt.StreamingJSON,
+	}
+
+	r.Render(w, j, v)
 }
 
-func (r *Render) addYield(name string, binding interface{}) {
-	funcs := template.FuncMap{
-		"yield": func() (template.HTML, error) {
-			buf, err := r.execute(name, binding)
-			// Return safe HTML here since we are rendering our own template.
-			return template.HTML(buf.String()), err
-		},
-		"current": func() (string, error) {
-			return name, nil
-		},
+// JSONP marshals the given interface object and writes the JSON response.
+func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v interface{}) {
+	head := Head{
+		ContentType: ContentJSONP + r.compiledCharset,
+		Status:      status,
 	}
-	r.templates.Funcs(funcs)
+
+	j := JSONP{
+		Head:     head,
+		Indent:   r.opt.IndentJSON,
+		Callback: callback,
+	}
+
+	r.Render(w, j, v)
 }
 
-func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
-	if len(htmlOpt) > 0 {
-		return htmlOpt[0]
+// Text writes out a string as plain text.
+func (r *Render) Text(w http.ResponseWriter, status int, v string) {
+	head := Head{
+		ContentType: ContentText + r.compiledCharset,
+		Status:      status,
 	}
 
-	return HTMLOptions{
-		Layout: r.opt.Layout,
+	t := Text{
+		Head: head,
 	}
+
+	r.Render(w, t, v)
+}
+
+// XML marshals the given interface object and writes the XML response.
+func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
+	head := Head{
+		ContentType: ContentXML + r.compiledCharset,
+		Status:      status,
+	}
+
+	x := XML{
+		Head:   head,
+		Indent: r.opt.IndentXML,
+		Prefix: r.opt.PrefixXML,
+	}
+
+	r.Render(w, x, v)
 }

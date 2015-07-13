@@ -27,6 +27,10 @@
           r.Data(w, http.StatusOK, []byte("Some binary data here."))
       })
 
+      mux.HandleFunc("/text", func(w http.ResponseWriter, req *http.Request) {
+          r.Text(w, http.StatusOK, "Plain text here")
+      })
+
       mux.HandleFunc("/json", func(w http.ResponseWriter, req *http.Request) {
           r.JSON(w, http.StatusOK, map[string]string{"hello": "json"})
       })
