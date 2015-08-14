@@ -309,27 +309,8 @@ func TestCompileTemplatesFromDir(t *testing.T) {
 	})
 	r.compileTemplatesFromDir()
 
-	expect(t, r.templates.Lookup(fname1Rel) != nil, true)
-	expect(t, r.templates.Lookup(fname0Rel) != nil, true)
-	expect(t, r.templates.Lookup(fnameShouldParsedRel) != nil, true)
-	expect(t, r.templates.Lookup(dirShouldNotParsedRel) == nil, true)
-}
-
-func TestLookup(t *testing.T) {
-	baseDir := "fixtures/template-dir-test"
-	fname0Rel := "0"
-	fname1Rel := "subdir/1"
-	fnameShouldParsedRel := "dedicated.tmpl/notbad"
-	dirShouldNotParsedRel := "dedicated"
-
-	r := New(Options{
-		Directory:  baseDir,
-		Extensions: []string{".tmpl", ".html"},
-	})
-	r.compileTemplatesFromDir()
-
-	expect(t, r.Lookup(fname1Rel) != nil, true)
-	expect(t, r.Lookup(fname0Rel) != nil, true)
-	expect(t, r.Lookup(fnameShouldParsedRel) != nil, true)
-	expect(t, r.Lookup(dirShouldNotParsedRel) == nil, true)
+	expect(t, r.TemplateLookup(fname1Rel) != nil, true)
+	expect(t, r.TemplateLookup(fname0Rel) != nil, true)
+	expect(t, r.TemplateLookup(fnameShouldParsedRel) != nil, true)
+	expect(t, r.TemplateLookup(dirShouldNotParsedRel) == nil, true)
 }
