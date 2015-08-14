@@ -247,6 +247,12 @@ func (r *Render) compileTemplatesFromAsset() {
 	}
 }
 
+// Wrapper around template.Lookup(). Returns the template with the given
+// name that is associated with t, or nil if there is no such template
+func (r *Render) Lookup(name string) *template.Template {
+	return r.templates.Lookup(name)
+}
+
 func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 	return buf, r.templates.ExecuteTemplate(buf, name, binding)
