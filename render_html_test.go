@@ -309,9 +309,8 @@ func TestCompileTemplatesFromDir(t *testing.T) {
 	})
 	r.compileTemplatesFromDir()
 
-	expect(t, r.templates.Lookup(fname1Rel) != nil, true)
-	expect(t, r.templates.Lookup(fname0Rel) != nil, true)
-	expect(t, r.templates.Lookup(fnameShouldParsedRel) != nil, true)
-	expect(t, r.templates.Lookup(dirShouldNotParsedRel) == nil, true)
-
+	expect(t, r.TemplateLookup(fname1Rel) != nil, true)
+	expect(t, r.TemplateLookup(fname0Rel) != nil, true)
+	expect(t, r.TemplateLookup(fnameShouldParsedRel) != nil, true)
+	expect(t, r.TemplateLookup(dirShouldNotParsedRel) == nil, true)
 }

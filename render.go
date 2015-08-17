@@ -247,6 +247,13 @@ func (r *Render) compileTemplatesFromAsset() {
 	}
 }
 
+// TemplateLookup is a wrapper around template.Lookup and returns
+// the template with the given name that is associated with t, or nil
+// if there is no such template
+func (r *Render) TemplateLookup(t string) *template.Template {
+	return r.templates.Lookup(t)
+}
+
 func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 	return buf, r.templates.ExecuteTemplate(buf, name, binding)
