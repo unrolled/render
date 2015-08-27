@@ -261,8 +261,8 @@ func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error
 
 func (r *Render) addYield(name string, binding interface{}) {
 	funcs := template.FuncMap{
-		"yield": func() (template.HTML, error) {
-			buf, err := r.execute(name, binding)
+		"yield": func(blockName string) (template.HTML, error) {
+			buf, err := r.execute(fmt.Sprintf("%s-%s", blockName, name), binding)
 			// Return safe HTML here since we are rendering our own template.
 			return template.HTML(buf.String()), err
 		},
