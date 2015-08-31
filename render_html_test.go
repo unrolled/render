@@ -132,10 +132,13 @@ func TestRenderBlock(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, err := http.NewRequest("GET", "/foo", nil)
+	if err != nil {
+		t.Fatalf("couldn't create a request. err = %s", err)
+	}
 	h.ServeHTTP(res, req)
 
-	expect(t, res.Body.String(), "before gophers\n<h1>during</h1>\nafter gophers")
+	expect(t, res.Body.String(), "before gophers\n<h1>during</h1>\nafter gophers\n")
 }
 
 func TestHTMLLayoutCurrent(t *testing.T) {

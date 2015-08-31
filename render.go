@@ -39,6 +39,9 @@ var helperFuncs = template.FuncMap{
 	"yield": func() (string, error) {
 		return "", fmt.Errorf("yield called with no layout defined")
 	},
+	"block": func() (string, error) {
+		return "", fmt.Errorf("block called with no layout defined")
+	},
 	"current": func() (string, error) {
 		return "", nil
 	},
@@ -320,7 +323,6 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 	}
 
 	opt := r.prepareHTMLOptions(htmlOpt)
-
 	// Assign a layout if there is one.
 	if len(opt.Layout) > 0 {
 		r.addLayoutFuncs(name, binding)
