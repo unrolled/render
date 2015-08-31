@@ -160,7 +160,7 @@ You can also load templates from memory by providing the Asset and AssetNames op
 e.g. when generating an asset file using [go-bindata](https://github.com/jteeuwen/go-bindata).
 
 ### Layouts
-Render provides a `yield` function for layouts to access:
+Render provides `yield` and `block` functions for layouts to access:
 ~~~ go
 // ...
 r := render.New(render.Options{
@@ -175,14 +175,15 @@ r := render.New(render.Options{
   <head>
     <title>My Layout</title>
     <!-- Render the template called `css-$current_template` here -->
-    {{ yield "css" }}
+    {{ block "css" }}
   </head>
   <body>
-    <!-- Render the template called `body-$current_template` here -->
-    {{ yield "body" }}
-
-    <!-- Render the template called `footer-$current_template` here -->
-    {{ yield "footer" }}
+    <!-- render the template called `header-$current_template` here -->
+    {{ block "header" }}
+    <!-- Render the current template here -->
+    {{ yield }}
+    <!-- render the template called `footer-$current_template` here -->
+    {{ block "footer" }}
   </body>
 </html>
 ~~~
