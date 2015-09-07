@@ -121,6 +121,26 @@ func TestRenderLayout(t *testing.T) {
 	expect(t, res.Body.String(), "head\n<h1>gophers</h1>\n\nfoot\n")
 }
 
+func TestRenderBlock(t *testing.T) {
+	render := New(Options{
+		Directory: "fixtures/blocks",
+		Layout:    "layout",
+	})
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		render.HTML(w, http.StatusOK, "content", "gophers")
+	})
+
+	res := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/foo", nil)
+	if err != nil {
+		t.Fatalf("couldn't create a request. err = %s", err)
+	}
+	h.ServeHTTP(res, req)
+
+	expect(t, res.Body.String(), "before gophers\n<h1>during</h1>\nafter gophers\n")
+}
+
 func TestHTMLLayoutCurrent(t *testing.T) {
 	render := New(Options{
 		Directory: "fixtures/basic",

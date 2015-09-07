@@ -84,7 +84,7 @@ r := render.New(render.Options{
     AssetNames: func() []string { // Return a list of asset names for the Asset function
       return []string{"filename.tmpl"}
     },
-    Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template.
+    Layout: "layout", // Specify a layout template. Layouts can call {{ yield }} to render the current template or {{ block "css" }} to render a block from the current template
     Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
     Funcs: []template.FuncMap{AppHelpers}, // Specify helper function maps for templates to access.
     Delims: render.Delims{"{[{", "}]}"}, // Sets delimiters to the specified strings.
@@ -160,7 +160,7 @@ You can also load templates from memory by providing the Asset and AssetNames op
 e.g. when generating an asset file using [go-bindata](https://github.com/jteeuwen/go-bindata).
 
 ### Layouts
-Render provides a `yield` function for layouts to access:
+Render provides `yield` and `block` functions for layouts to access:
 ~~~ go
 // ...
 r := render.New(render.Options{
@@ -174,10 +174,16 @@ r := render.New(render.Options{
 <html>
   <head>
     <title>My Layout</title>
+    <!-- Render the block template called `css-$current_template` here -->
+    {{ block "css" }}
   </head>
   <body>
+    <!-- render the block template called `header-$current_template` here -->
+    {{ block "header" }}
     <!-- Render the current template here -->
     {{ yield }}
+    <!-- render the block template called `footer-$current_template` here -->
+    {{ block "footer" }}
   </body>
 </html>
 ~~~

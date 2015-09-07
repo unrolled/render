@@ -39,6 +39,9 @@ var helperFuncs = template.FuncMap{
 	"yield": func() (string, error) {
 		return "", fmt.Errorf("yield called with no layout defined")
 	},
+	"block": func() (string, error) {
+		return "", fmt.Errorf("block called with no layout defined")
+	},
 	"current": func() (string, error) {
 		return "", nil
 	},
@@ -259,7 +262,7 @@ func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error
 	return buf, r.templates.ExecuteTemplate(buf, name, binding)
 }
 
-func (r *Render) addYield(name string, binding interface{}) {
+func (r *Render) addLayoutFuncs(name string, binding interface{}) {
 	funcs := template.FuncMap{
 		"yield": func() (template.HTML, error) {
 			buf, err := r.execute(name, binding)
@@ -269,8 +272,15 @@ func (r *Render) addYield(name string, binding interface{}) {
 		"current": func() (string, error) {
 			return name, nil
 		},
+		"block": func(blockName string) (template.HTML, error) {
+			buf, err := r.execute(fmt.Sprintf("%s-%s", blockName, name), binding)
+			// Return safe HTML here since we are rendering our own template.
+			return template.HTML(buf.String()), err
+		},
 	}
-	r.templates.Funcs(funcs)
+	if tpl := r.templates.Lookup(name); tpl != nil {
+		tpl.Funcs(funcs)
+	}
 }
 
 func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
@@ -313,10 +323,9 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 	}
 
 	opt := r.prepareHTMLOptions(htmlOpt)
-
 	// Assign a layout if there is one.
 	if len(opt.Layout) > 0 {
-		r.addYield(name, binding)
+		r.addLayoutFuncs(name, binding)
 		name = opt.Layout
 	}
 
