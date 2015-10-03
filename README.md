@@ -97,6 +97,7 @@ r := render.New(render.Options{
     IsDevelopment: true, // Render will now recompile the templates on every HTML response.
     UnEscapeHTML: true, // Replace ensure '&<>' are output correctly (JSON only).
     StreamingJSON: true, // Streams the JSON response via json.Encoder.
+    RequireBlocks: true, // Return an error if a template is missing a block used in a layout.
 })
 // ...
 ~~~
@@ -126,6 +127,7 @@ r := render.New(render.Options{
     IsDevelopment: false,
     UnEscapeHTML: false,
     StreamingJSON: false,
+    RequireBlocks: false,
 })
 ~~~
 
@@ -200,6 +202,23 @@ r := render.New(render.Options{
   </body>
 </html>
 ~~~
+
+Blocks are defined by individual templates as seen below. The block template's
+name needs to be defined as "{block name}-{template name}".
+~~~ html
+<!-- templates/home.tmpl -->
+{{ define "header-home" }}
+<h1>Home</h1>
+{{ end }}
+
+{{ define "footer-home"}}
+<p>The End</p>
+{{ end }}
+~~~
+
+By default, the template is not required to define all blocks referenced in the
+layout. If you want an error to be returned when a template does not define a
+block, set `Options.RequireBlocks = true`.
 
 ### Character Encodings
 Render will automatically set the proper Content-Type header based on which function you call. See below for an example of what the default settings would output (note that UTF-8 is the default, and binary data does not output the charset):
