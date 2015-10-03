@@ -16,14 +16,16 @@ type Greeting struct {
 func TestJSONBasic(t *testing.T) {
 	render := New()
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 299, Greeting{"hello", "world"})
+		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 299)
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
 	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
@@ -35,14 +37,16 @@ func TestJSONPrefix(t *testing.T) {
 		PrefixJSON: []byte(prefix),
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 300, Greeting{"hello", "world"})
+		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 300)
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
 	expect(t, res.Body.String(), prefix+"{\"one\":\"hello\",\"two\":\"world\"}")
@@ -53,14 +57,16 @@ func TestJSONIndented(t *testing.T) {
 		IndentJSON: true,
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
+		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, http.StatusOK)
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
 	expect(t, res.Body.String(), "{\n  \"one\": \"hello\",\n  \"two\": \"world\"\n}\n")
@@ -71,8 +77,9 @@ func TestJSONConsumeIndented(t *testing.T) {
 		IndentJSON: true,
 	})
 
+	var renErr error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
+		renErr = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
@@ -81,7 +88,8 @@ func TestJSONConsumeIndented(t *testing.T) {
 
 	var output Greeting
 	err := json.Unmarshal(res.Body.Bytes(), &output)
-	expect(t, err, nil)
+	expectNil(t, err)
+	expectNil(t, renErr)
 	expect(t, output.One, "hello")
 	expect(t, output.Two, "world")
 }
@@ -89,14 +97,16 @@ func TestJSONConsumeIndented(t *testing.T) {
 func TestJSONWithError(t *testing.T) {
 	render := New(Options{}, Options{}, Options{}, Options{})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 299, math.NaN())
+		err = render.JSON(w, 299, math.NaN())
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNotNil(t, err)
 	expect(t, res.Code, 500)
 }
 
@@ -104,14 +114,16 @@ func TestJSONWithOutUnEscapeHTML(t *testing.T) {
 	render := New(Options{
 		UnEscapeHTML: false,
 	})
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
+		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Body.String(), `{"one":"\u003cspan\u003etest\u0026test\u003c/span\u003e","two":"\u003cdiv\u003etest\u0026test\u003c/div\u003e"}`)
 }
 
@@ -119,14 +131,16 @@ func TestJSONWithUnEscapeHTML(t *testing.T) {
 	render := New(Options{
 		UnEscapeHTML: true,
 	})
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
+		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Body.String(), "{\"one\":\"<span>test&test</span>\",\"two\":\"<div>test&test</div>\"}")
 }
 
@@ -134,15 +148,16 @@ func TestJSONStream(t *testing.T) {
 	render := New(Options{
 		StreamingJSON: true,
 	})
-
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 299, Greeting{"hello", "world"})
+		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 299)
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
 	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}\n")
@@ -155,14 +170,16 @@ func TestJSONStreamPrefix(t *testing.T) {
 		StreamingJSON: true,
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 300, Greeting{"hello", "world"})
+		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 300)
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
 	expect(t, res.Body.String(), prefix+"{\"one\":\"hello\",\"two\":\"world\"}\n")
@@ -173,14 +190,16 @@ func TestJSONStreamWithError(t *testing.T) {
 		StreamingJSON: true,
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 299, math.NaN())
+		err = render.JSON(w, 299, math.NaN())
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNotNil(t, err)
 	expect(t, res.Code, 299)
 
 	// Because this is streaming, we can not catch the error.
@@ -194,14 +213,16 @@ func TestJSONCharset(t *testing.T) {
 		Charset: "foobar",
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 300, Greeting{"hello", "world"})
+		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 300)
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=foobar")
 	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
