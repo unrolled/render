@@ -6,8 +6,6 @@ go:
   - 1.5
   - tip
 
-install:
-  - go get github.com/eknkc/amber
-
 script:
-    - go test -v ./... --tags=integration
+  - go test -v ./... -race
+
