@@ -347,9 +347,9 @@ func TestHTMLNoRace(t *testing.T) {
 		Directory: "fixtures/basic",
 	})
 
-	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err = render.HTML(w, http.StatusOK, "hello", "gophers")
+		err := render.HTML(w, http.StatusOK, "hello", "gophers")
+		expectNil(t, err)
 	})
 
 	done := make(chan bool)
@@ -359,7 +359,6 @@ func TestHTMLNoRace(t *testing.T) {
 
 		h.ServeHTTP(res, req)
 
-		expectNil(t, err)
 		expect(t, res.Code, 200)
 		expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
 		// ContentLength should be deferred to the ResponseWriter and not Render
