@@ -18,14 +18,16 @@ func TestXMLBasic(t *testing.T) {
 	// nothing here to configure
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.XML(w, 299, GreetingXML{One: "hello", Two: "world"})
+		err = render.XML(w, 299, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 299)
 	expect(t, res.Header().Get(ContentType), ContentXML+"; charset=UTF-8")
 	expect(t, res.Body.String(), "<greeting one=\"hello\" two=\"world\"></greeting>")
@@ -37,14 +39,16 @@ func TestXMLPrefix(t *testing.T) {
 		PrefixXML: []byte(prefix),
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.XML(w, 300, GreetingXML{One: "hello", Two: "world"})
+		err = render.XML(w, 300, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, 300)
 	expect(t, res.Header().Get(ContentType), ContentXML+"; charset=UTF-8")
 	expect(t, res.Body.String(), prefix+"<greeting one=\"hello\" two=\"world\"></greeting>")
@@ -55,14 +59,16 @@ func TestXMLIndented(t *testing.T) {
 		IndentXML: true,
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
+		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNil(t, err)
 	expect(t, res.Code, http.StatusOK)
 	expect(t, res.Header().Get(ContentType), ContentXML+"; charset=UTF-8")
 	expect(t, res.Body.String(), "<greeting one=\"hello\" two=\"world\"></greeting>\n")
@@ -73,13 +79,15 @@ func TestXMLWithError(t *testing.T) {
 	// nothing here to configure
 	})
 
+	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.XML(w, 299, map[string]string{"foo": "bar"})
+		err = render.XML(w, 299, map[string]string{"foo": "bar"})
 	})
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
+	expectNotNil(t, err)
 	expect(t, res.Code, 500)
 }

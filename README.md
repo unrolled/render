@@ -98,6 +98,7 @@ r := render.New(render.Options{
     UnEscapeHTML: true, // Replace ensure '&<>' are output correctly (JSON only).
     StreamingJSON: true, // Streams the JSON response via json.Encoder.
     RequireBlocks: true, // Return an error if a template is missing a block used in a layout.
+    DisableHTTPErrorRendering: true, // Disables automatic rendering of http.StatusInternalServerError when an error occurs.
 })
 // ...
 ~~~
@@ -128,6 +129,7 @@ r := render.New(render.Options{
     UnEscapeHTML: false,
     StreamingJSON: false,
     RequireBlocks: false,
+    DisableHTTPErrorRendering: false,
 })
 ~~~
 
@@ -328,6 +330,26 @@ func main() {
     })
 
     http.ListenAndServe("127.0.0.1:3000", mux)
+}
+~~~
+
+### Error Handling
+
+The rendering functions return any errors from the rendering engine.
+By default, they will also write the error to the HTTP response and set the status code to 500. You can disable
+this behavior so that you can handle errors yourself by setting
+`Options.DisableHTTPErrorRendering: true`.
+
+~~~go
+r := render.New(render.Options{
+  DisableHTTPErrorRendering: true,
+})
+
+//...
+
+err := r.HTML(w, http.StatusOK, "example", nil)
+if err != nil{
+  http.Redirect(w, r, "/my-custom-500", http.StatusFound)
 }
 ~~~
 

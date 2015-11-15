@@ -91,6 +91,8 @@ type Options struct {
 	StreamingJSON bool
 	// Require that all blocks executed in the layout are implemented in all templates using the layout. Default is false.
 	RequireBlocks bool
+	// Disables automatic rendering of http.StatusInternalServerError when an error occurs. Default is false.
+	DisableHTTPErrorRendering bool
 }
 
 // HTMLOptions is a struct for overriding some rendering Options for specific HTML call.
@@ -300,15 +302,16 @@ func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
 }
 
 // Render is the generic function called by XML, JSON, Data, HTML, and can be called by custom implementations.
-func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) {
+func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) error {
 	err := e.Render(w, data)
-	if err != nil {
+	if err != nil && !r.opt.DisableHTTPErrorRendering {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	return err
 }
 
 // Data writes out the raw bytes as binary data.
-func (r *Render) Data(w http.ResponseWriter, status int, v []byte) {
+func (r *Render) Data(w http.ResponseWriter, status int, v []byte) error {
 	head := Head{
 		ContentType: ContentBinary,
 		Status:      status,
@@ -318,11 +321,11 @@ func (r *Render) Data(w http.ResponseWriter, status int, v []byte) {
 		Head: head,
 	}
 
-	r.Render(w, d, v)
+	return r.Render(w, d, v)
 }
 
 // HTML builds up the response from the specified template and bindings.
-func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) {
+func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
 	// If we are in development mode, recompile the templates on every HTML request.
 	if r.opt.IsDevelopment {
 		r.compileTemplates()
@@ -346,11 +349,11 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 		Templates: r.templates,
 	}
 
-	r.Render(w, h, binding)
+	return r.Render(w, h, binding)
 }
 
 // JSON marshals the given interface object and writes the JSON response.
-func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
+func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) error {
 	head := Head{
 		ContentType: ContentJSON + r.compiledCharset,
 		Status:      status,
@@ -364,11 +367,11 @@ func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) {
 		StreamingJSON: r.opt.StreamingJSON,
 	}
 
-	r.Render(w, j, v)
+	return r.Render(w, j, v)
 }
 
 // JSONP marshals the given interface object and writes the JSON response.
-func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v interface{}) {
+func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v interface{}) error {
 	head := Head{
 		ContentType: ContentJSONP + r.compiledCharset,
 		Status:      status,
@@ -380,11 +383,11 @@ func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v int
 		Callback: callback,
 	}
 
-	r.Render(w, j, v)
+	return r.Render(w, j, v)
 }
 
 // Text writes out a string as plain text.
-func (r *Render) Text(w http.ResponseWriter, status int, v string) {
+func (r *Render) Text(w http.ResponseWriter, status int, v string) error {
 	head := Head{
 		ContentType: ContentText + r.compiledCharset,
 		Status:      status,
@@ -394,11 +397,11 @@ func (r *Render) Text(w http.ResponseWriter, status int, v string) {
 		Head: head,
 	}
 
-	r.Render(w, t, v)
+	return r.Render(w, t, v)
 }
 
 // XML marshals the given interface object and writes the XML response.
-func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
+func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) error {
 	head := Head{
 		ContentType: ContentXML + r.compiledCharset,
 		Status:      status,
@@ -410,5 +413,5 @@ func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) {
 		Prefix: r.opt.PrefixXML,
 	}
 
-	r.Render(w, x, v)
+	return r.Render(w, x, v)
 }
