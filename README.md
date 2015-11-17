@@ -59,7 +59,7 @@ func main() {
     mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
         // Assumes you have a template in ./templates called "example.tmpl"
         // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
-        r.HTML(w, http.StatusOK, "example", nil)
+        r.HTML(w, http.StatusOK, "example", "World")
     })
 
     http.ListenAndServe("127.0.0.1:3000", mux)
@@ -270,7 +270,7 @@ func main() {
     mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
         // Assumes you have a template in ./templates called "example.tmpl"
         // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
-        r.HTML(w, http.StatusOK, "example", nil)
+        r.HTML(w, http.StatusOK, "example", "World")
     })
 
     http.ListenAndServe("127.0.0.1:3000", mux)
@@ -326,7 +326,7 @@ func main() {
     mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
         // Assumes you have a template in ./templates called "example.tmpl"
         // $ mkdir -p templates && echo "<h1>Hello {{.}}.</h1>" > templates/example.tmpl
-        r.HTML(w, http.StatusOK, "example", nil)
+        r.HTML(w, http.StatusOK, "example", "World")
     })
 
     http.ListenAndServe("127.0.0.1:3000", mux)
@@ -347,7 +347,7 @@ r := render.New(render.Options{
 
 //...
 
-err := r.HTML(w, http.StatusOK, "example", nil)
+err := r.HTML(w, http.StatusOK, "example", "World")
 if err != nil{
   http.Redirect(w, r, "/my-custom-500", http.StatusFound)
 }
@@ -464,7 +464,7 @@ func main() {
 }
 ~~~
 
-### [Traffic](https://github.com/pilu/traffic/)
+### [Traffic](https://github.com/pilu/traffic)
 ~~~ go
 // main.go
 package main
@@ -514,3 +514,4 @@ func main() {
     web.Run(":3000")
 }
 ~~~
+
