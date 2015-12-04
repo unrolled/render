@@ -489,29 +489,3 @@ func main() {
     router.Run()
 }
 ~~~
-
-### [Web.go](https://github.com/hoisie/web)
-~~~ go
-// main.go
-package main
-
-import (
-    "net/http"
-
-    "github.com/hoisie/web"
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
-)
-
-func main() {
-    r := render.New(render.Options{
-        IndentJSON: true,
-    })
-
-    web.Get("/(.*)", func(ctx *web.Context, val string) {
-        r.JSON(ctx, http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
-    })
-
-    web.Run(":3000")
-}
-~~~
-
