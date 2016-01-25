@@ -44,7 +44,7 @@
       })
 
       mux.HandleFunc("/html", func(w http.ResponseWriter, req *http.Request) {
-          // Assumes you have a template in ./templates called "example.tmpl"
+          // Assumes you have a template in ./templates called "example.tmpl".
           // $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
           r.HTML(w, http.StatusOK, "example", nil)
       })

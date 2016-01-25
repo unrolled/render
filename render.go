@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,18 +35,7 @@ const (
 	defaultCharset = "UTF-8"
 )
 
-// Included helper functions for use when rendering HTML.
-var helperFuncs = template.FuncMap{
-	"yield": func() (string, error) {
-		return "", fmt.Errorf("yield called with no layout defined")
-	},
-	"block": func() (string, error) {
-		return "", fmt.Errorf("block called with no layout defined")
-	},
-	"current": func() (string, error) {
-		return "", nil
-	},
-}
+// helperFuncs had to be moved out. See helpers.go|helpers_pre16.go files.
 
 // Delims represents a set of Left and Right delimiters for HTML template rendering.
 type Delims struct {
@@ -81,7 +71,7 @@ type Options struct {
 	PrefixJSON []byte
 	// Prefixes the XML output with the given bytes.
 	PrefixXML []byte
-	// Allows changing of output to XHTML instead of HTML. Default is "text/html"
+	// Allows changing of output to XHTML instead of HTML. Default is "text/html".
 	HTMLContentType string
 	// If IsDevelopment is set to true, this will recompile the templates on every request. Default is false.
 	IsDevelopment bool
@@ -89,7 +79,9 @@ type Options struct {
 	UnEscapeHTML bool
 	// Streams JSON responses instead of marshalling prior to sending. Default is false.
 	StreamingJSON bool
-	// Require that all blocks executed in the layout are implemented in all templates using the layout. Default is false.
+	// Require that all partials executed in the layout are implemented in all templates using the layout. Default is false.
+	RequirePartials bool
+	// Deprecated: Use the above `RequirePartials` instead of this. As of Go 1.6, blocks are built in. Default is false.
 	RequireBlocks bool
 	// Disables automatic rendering of http.StatusInternalServerError when an error occurs. Default is false.
 	DisableHTTPErrorRendering bool
@@ -167,11 +159,10 @@ func (r *Render) compileTemplatesFromDir() {
 
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		// fmt.Println("path: ", path)
-		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html"
+		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
 		// These dirs should be excluded as they are not valid golang templates, but files under
 		// them should be treat as normal.
-		// if is a dir, return immediately.(dir is not a valid golang template)
+		// If is a dir, return immediately (dir is not a valid golang template).
 		if info == nil || info.IsDir() {
 			return nil
 		}
@@ -256,7 +247,7 @@ func (r *Render) compileTemplatesFromAsset() {
 
 // TemplateLookup is a wrapper around template.Lookup and returns
 // the template with the given name that is associated with t, or nil
-// if there is no such template
+// if there is no such template.
 func (r *Render) TemplateLookup(t string) *template.Template {
 	return r.templates.Lookup(t)
 }
@@ -276,10 +267,20 @@ func (r *Render) addLayoutFuncs(name string, binding interface{}) {
 		"current": func() (string, error) {
 			return name, nil
 		},
-		"block": func(blockName string) (template.HTML, error) {
-			fullBlockName := fmt.Sprintf("%s-%s", blockName, name)
-			if r.opt.RequireBlocks || r.TemplateLookup(fullBlockName) != nil {
-				buf, err := r.execute(fullBlockName, binding)
+		"block": func(partialName string) (template.HTML, error) {
+			log.Print("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
+			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
+			if r.opt.RequireBlocks || r.TemplateLookup(fullPartialName) != nil {
+				buf, err := r.execute(fullPartialName, binding)
+				// Return safe HTML here since we are rendering our own template.
+				return template.HTML(buf.String()), err
+			}
+			return "", nil
+		},
+		"partial": func(partialName string) (template.HTML, error) {
+			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
+			if r.opt.RequirePartials || r.TemplateLookup(fullPartialName) != nil {
+				buf, err := r.execute(fullPartialName, binding)
 				// Return safe HTML here since we are rendering our own template.
 				return template.HTML(buf.String()), err
 			}
