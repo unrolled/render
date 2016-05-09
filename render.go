@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -351,6 +352,22 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 	}
 
 	return r.Render(w, h, binding)
+}
+
+func (r *Render) EchoHTML(w io.Writer, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
+	// If we are in development mode, recompile the templates on every HTML request.
+	if r.opt.IsDevelopment {
+		r.compileTemplates()
+	}
+
+	opt := r.prepareHTMLOptions(htmlOpt)
+	// Assign a layout if there is one.
+	if len(opt.Layout) > 0 {
+		r.addLayoutFuncs(name, binding)
+		name = opt.Layout
+	}
+
+	return r.templates.ExecuteTemplate(w, name, binding)
 }
 
 // JSON marshals the given interface object and writes the JSON response.
