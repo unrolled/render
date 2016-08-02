@@ -118,11 +118,6 @@ func New(options ...Options) *Render {
 	r.prepareOptions()
 	r.compileTemplates()
 
-	// Create a new buffer pool for writing templates into.
-	if bufPool == nil {
-		bufPool = NewBufferPool(64)
-	}
-
 	return &r
 }
 
