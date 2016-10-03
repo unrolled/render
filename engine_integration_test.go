@@ -4,6 +4,7 @@ package render
 
 import (
 	"html/template"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -19,8 +20,10 @@ type Amber struct {
 	Template *template.Template
 }
 
-func (a Amber) Render(w http.ResponseWriter, v interface{}) error {
-	a.Head.Write(w)
+func (a Amber) Render(w io.Writer, v interface{}) error {
+	if hw, ok := w.(http.ResponseWriter); ok {
+		a.Head.Write(hw)
+	}
 	return a.Template.Execute(w, v)
 }
 
