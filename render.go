@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -298,16 +299,16 @@ func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
 }
 
 // Render is the generic function called by XML, JSON, Data, HTML, and can be called by custom implementations.
-func (r *Render) Render(w http.ResponseWriter, e Engine, data interface{}) error {
+func (r *Render) Render(w io.Writer, e Engine, data interface{}) error {
 	err := e.Render(w, data)
-	if err != nil && !r.opt.DisableHTTPErrorRendering {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if hw, ok := w.(http.ResponseWriter); err != nil && !r.opt.DisableHTTPErrorRendering && ok {
+		http.Error(hw, err.Error(), http.StatusInternalServerError)
 	}
 	return err
 }
 
 // Data writes out the raw bytes as binary data.
-func (r *Render) Data(w http.ResponseWriter, status int, v []byte) error {
+func (r *Render) Data(w io.Writer, status int, v []byte) error {
 	head := Head{
 		ContentType: ContentBinary,
 		Status:      status,
@@ -321,7 +322,7 @@ func (r *Render) Data(w http.ResponseWriter, status int, v []byte) error {
 }
 
 // HTML builds up the response from the specified template and bindings.
-func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
+func (r *Render) HTML(w io.Writer, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
 	// If we are in development mode, recompile the templates on every HTML request.
 	if r.opt.IsDevelopment {
 		r.compileTemplates()
@@ -349,7 +350,7 @@ func (r *Render) HTML(w http.ResponseWriter, status int, name string, binding in
 }
 
 // JSON marshals the given interface object and writes the JSON response.
-func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) error {
+func (r *Render) JSON(w io.Writer, status int, v interface{}) error {
 	head := Head{
 		ContentType: ContentJSON + r.compiledCharset,
 		Status:      status,
@@ -367,7 +368,7 @@ func (r *Render) JSON(w http.ResponseWriter, status int, v interface{}) error {
 }
 
 // JSONP marshals the given interface object and writes the JSON response.
-func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v interface{}) error {
+func (r *Render) JSONP(w io.Writer, status int, callback string, v interface{}) error {
 	head := Head{
 		ContentType: ContentJSONP + r.compiledCharset,
 		Status:      status,
@@ -383,7 +384,7 @@ func (r *Render) JSONP(w http.ResponseWriter, status int, callback string, v int
 }
 
 // Text writes out a string as plain text.
-func (r *Render) Text(w http.ResponseWriter, status int, v string) error {
+func (r *Render) Text(w io.Writer, status int, v string) error {
 	head := Head{
 		ContentType: ContentText + r.compiledCharset,
 		Status:      status,
@@ -397,7 +398,7 @@ func (r *Render) Text(w http.ResponseWriter, status int, v string) error {
 }
 
 // XML marshals the given interface object and writes the XML response.
-func (r *Render) XML(w http.ResponseWriter, status int, v interface{}) error {
+func (r *Render) XML(w io.Writer, status int, v interface{}) error {
 	head := Head{
 		ContentType: ContentXML + r.compiledCharset,
 		Status:      status,

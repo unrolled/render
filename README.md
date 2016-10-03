@@ -364,26 +364,34 @@ if err != nil{
 package main
 
 import (
-	"net/http"
+    "io"
+    "net/http"
 
-	"github.com/labstack/echo"
-	"github.com/unrolled/render" // or "gopkg.in/unrolled/render.v1"
+    "github.com/labstack/echo"
+    "github.com/labstack/echo/engine/standard"
+    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
 )
 
+type RenderWrapper struct { // We need to wrap the renderer because we need a different signature for echo
+    rnd *render.Render
+}
+
+func (r *RenderWrapper) Render(w io.Writer, name string, data interface{},c echo.Context) error {
+    return r.rnd.HTML(w,0,name,data) // The zero status code is overwritten by echo
+}
+
 func main() {
-	r := render.New(render.Options{
-		IndentJSON: true,
-	})
+    r := &RenderWrapper{render.New()}
 
-	e := echo.New()
+    e := echo.New()
 
-	// Routes
-	e.Get("/", func(c *echo.Context) error {
-        r.JSON(c.Response().Writer(), http.StatusOK, map[string]string{"welcome": "This is rendered JSON!"})
-        return nil
+    e.SetRenderer(r)
+    
+    e.GET("/", func(c echo.Context) error {
+        return c.Render(http.StatusOK,"TemplateName","TemplateData")
     })
 
-	e.Run(":3000")
+    e.Run(standard.New(":1323"))
 }
 ~~~
 
@@ -492,3 +500,4 @@ func main() {
     router.Run()
 }
 ~~~
+
