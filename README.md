@@ -492,3 +492,40 @@ func main() {
     router.Run()
 }
 ~~~
+
+### [Echo](https://github.com/labstack/echo)
+~~~ go
+// main.go
+package main
+
+import (
+    "io"
+    "net/http"
+
+    "github.com/labstack/echo"
+    "github.com/labstack/echo/engine/standard"
+    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+)
+
+type RenderWrapper struct { // We need to wrap the renderer because we need a different signature for echo
+    rnd *render.Render
+}
+
+func (r *RenderWrapper) Render(w io.Writer, name string, data interface{},c echo.Context) error {
+    return r.rnd.HTML(w,0,name,data) // The zero status code is overwritten by echo
+}
+
+func main() {
+    r := &RenderWrapper{render.New()}
+
+    e := echo.New()
+
+    e.SetRenderer(r)
+    
+    e.GET("/", func(c echo.Context) error {
+        return c.Render(http.StatusOK,"TemplateName","TemplateData")
+    })
+
+    e.Run(standard.New(":1323"))
+}
+~~~
