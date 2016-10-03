@@ -372,12 +372,12 @@ import (
     "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
 )
 
-type RenderWrapper struct { // We need to wrap the renderer because we need a different signature for echo
+type RenderWrapper struct { // We need to wrap the renderer because we need a different signature for echo.
     rnd *render.Render
 }
 
 func (r *RenderWrapper) Render(w io.Writer, name string, data interface{},c echo.Context) error {
-    return r.rnd.HTML(w,0,name,data) // The zero status code is overwritten by echo
+    return r.rnd.HTML(w, 0, name, data) // The zero status code is overwritten by echo.
 }
 
 func main() {
@@ -388,7 +388,7 @@ func main() {
     e.SetRenderer(r)
     
     e.GET("/", func(c echo.Context) error {
-        return c.Render(http.StatusOK,"TemplateName","TemplateData")
+        return c.Render(http.StatusOK, "TemplateName", "TemplateData")
     })
 
     e.Run(standard.New(":1323"))
@@ -500,4 +500,3 @@ func main() {
     router.Run()
 }
 ~~~
-
