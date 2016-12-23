@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"io"
 )
 
 // Engine is the generic interface for all responses.
@@ -60,10 +61,40 @@ type XML struct {
 	Prefix []byte
 }
 
+type Stream struct {
+	Head
+}
+
 // Write outputs the header content.
 func (h Head) Write(w http.ResponseWriter) {
 	w.Header().Set(ContentType, h.ContentType)
 	w.WriteHeader(h.Status)
+}
+
+//Remder a stream response.
+func (s Stream)Render(w http.ResponseWriter, v interface{}) error {
+	c := w.Header().Get(ContentType)
+	if c != "" {
+		s.Head.ContentType = c
+	}
+	s.Head.Write(w)
+	if reader, ok := v.(io.Reader); ok {
+		_, err := io.Copy(w, reader)
+		if err != nil {
+			return err
+
+		}
+		if limitReader, ok := v.(*io.LimitedReader); ok {
+			reader = limitReader.R
+			if closer, ok := reader.(io.Closer); ok {
+				closer.Close()
+			}
+		}
+		if closer, ok := v.(io.Closer); ok {
+			closer.Close()
+		}
+	}
+	return nil
 }
 
 // Render a data response.

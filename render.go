@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"io"
 )
 
 const (
@@ -122,6 +123,14 @@ func New(options ...Options) *Render {
 	r.compileTemplates()
 
 	return &r
+}
+//get finally options
+func (r *Render)GetFinallyOptions() Options{
+	return r.opt
+}
+//get compiledCharset for extend response
+func (r *Render)GetCompiledCharset() string{
+	return r.compiledCharset
 }
 
 func (r *Render) prepareOptions() {
@@ -313,6 +322,19 @@ func (r *Render) Render(w io.Writer, e Engine, data interface{}) error {
 		http.Error(hw, err.Error(), http.StatusInternalServerError)
 	}
 	return err
+}
+
+// Stream writes out the raw bytes as binary data.
+func (r *Render)Stream(w http.ResponseWriter, status int, reader io.Reader) error {
+	head := Head{
+		ContentType: ContentBinary,
+		Status:      status,
+	}
+
+	s := Stream{
+		Head: head,
+	}
+	return r.Render(w, s, reader)
 }
 
 // Data writes out the raw bytes as binary data.
