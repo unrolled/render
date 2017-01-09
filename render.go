@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 const (
@@ -102,6 +103,7 @@ type Render struct {
 	// Customize Secure with an Options struct.
 	opt             Options
 	templates       *template.Template
+	templatesLk     sync.Mutex
 	compiledCharset string
 }
 
@@ -331,6 +333,9 @@ func (r *Render) Data(w io.Writer, status int, v []byte) error {
 
 // HTML builds up the response from the specified template and bindings.
 func (r *Render) HTML(w io.Writer, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
+	r.templatesLk.Lock()
+	defer r.templatesLk.Unlock()
+
 	// If we are in development mode, recompile the templates on every HTML request.
 	if r.opt.IsDevelopment {
 		r.compileTemplates()
