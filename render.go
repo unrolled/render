@@ -391,6 +391,22 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 	return r.Render(w, h, binding)
 }
 
+func (r *Render) EchoHTML(w io.Writer, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
+	// If we are in development mode, recompile the templates on every HTML request.
+	if r.opt.IsDevelopment {
+		r.compileTemplates()
+	}
+
+	opt := r.prepareHTMLOptions(htmlOpt)
+	// Assign a layout if there is one.
+	if len(opt.Layout) > 0 {
+		r.addLayoutFuncs(name, binding)
+		name = opt.Layout
+	}
+
+	return r.templates.ExecuteTemplate(w, name, binding)
+}
+
 // JSON marshals the given interface object and writes the JSON response.
 func (r *Render) JSON(w io.Writer, status int, v interface{}) error {
 	head := Head{
