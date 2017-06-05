@@ -361,3 +361,24 @@ func TestCompileTemplatesFromDir(t *testing.T) {
 	expect(t, r.TemplateLookup(fnameShouldParsedRel) != nil, true)
 	expect(t, r.TemplateLookup(dirShouldNotParsedRel) == nil, true)
 }
+
+func TestHTMLDisabledCharset(t *testing.T) {
+	render := New(Options{
+		Directory:      "fixtures/basic",
+		DisableCharset: true,
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.HTML(w, http.StatusOK, "hello", "gophers")
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentHTML)
+	expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
+}

@@ -91,7 +91,8 @@ r := render.New(render.Options{
     Extensions: []string{".tmpl", ".html"}, // Specify extensions to load for templates.
     Funcs: []template.FuncMap{AppHelpers}, // Specify helper function maps for templates to access.
     Delims: render.Delims{"{[{", "}]}"}, // Sets delimiters to the specified strings.
-    Charset: "UTF-8", // Sets encoding for json and html content-types. Default is "UTF-8".
+    Charset: "UTF-8", // Sets encoding for content-types. Default is "UTF-8".
+    DisableCharset: true, // Prevents the charset from being appended to the content type header. 
     IndentJSON: true, // Output human readable JSON.
     IndentXML: true, // Output human readable XML.
     PrefixJSON: []byte(")]}',\n"), // Prefixes JSON responses with the given bytes.
@@ -123,11 +124,17 @@ r := render.New(render.Options{
     Funcs: []template.FuncMap{},
     Delims: render.Delims{"{{", "}}"},
     Charset: "UTF-8",
+    DisableCharset: false,
     IndentJSON: false,
     IndentXML: false,
     PrefixJSON: []byte(""),
     PrefixXML: []byte(""),
+    BinaryContentType: "application/octet-stream",
     HTMLContentType: "text/html",
+    JSONContentType: "application/json",
+    JSONPContentType: "application/javascript",
+    TextContentType: "text/plain",
+    XMLContentType: "application/xhtml+xml",
     IsDevelopment: false,
     UnEscapeHTML: false,
     StreamingJSON: false,

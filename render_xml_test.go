@@ -91,3 +91,43 @@ func TestXMLWithError(t *testing.T) {
 	expectNotNil(t, err)
 	expect(t, res.Code, 500)
 }
+
+func TestXMLCustomContentType(t *testing.T) {
+	render := New(Options{
+		XMLContentType: "application/customxml",
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/customxml; charset=UTF-8")
+	expect(t, res.Body.String(), "<greeting one=\"hello\" two=\"world\"></greeting>")
+}
+
+func TestXMLDisabledCharset(t *testing.T) {
+	render := New(Options{
+		DisableCharset: true,
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentXML)
+	expect(t, res.Body.String(), "<greeting one=\"hello\" two=\"world\"></greeting>")
+}

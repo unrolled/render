@@ -66,3 +66,43 @@ func TestTextSuppliedCharset(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), "text/css")
 	expect(t, res.Body.String(), "html{color:red}")
 }
+
+func TestTextCustomContentType(t *testing.T) {
+	render := New(Options{
+		TextContentType: "application/customtext",
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.Text(w, http.StatusOK, "Hello Text!")
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/customtext; charset=UTF-8")
+	expect(t, res.Body.String(), "Hello Text!")
+}
+
+func TestTextDisabledCharset(t *testing.T) {
+	render := New(Options{
+		DisableCharset: true,
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.Text(w, http.StatusOK, "Hello Text!")
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentText)
+	expect(t, res.Body.String(), "Hello Text!")
+}

@@ -227,3 +227,43 @@ func TestJSONCharset(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=foobar")
 	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
 }
+
+func TestJSONCustomContentType(t *testing.T) {
+	render := New(Options{
+		JSONContentType: "application/vnd.api+json",
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/vnd.api+json; charset=UTF-8")
+	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
+}
+
+func TestJSONDisabledCharset(t *testing.T) {
+	render := New(Options{
+		DisableCharset: true,
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentJSON)
+	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
+}

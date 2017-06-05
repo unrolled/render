@@ -65,3 +65,43 @@ func TestJSONPWithError(t *testing.T) {
 	expectNotNil(t, err)
 	expect(t, res.Code, 500)
 }
+
+func TestJSONPCustomContentType(t *testing.T) {
+	render := New(Options{
+		JSONPContentType: "application/vnd.api+json",
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSONP(w, http.StatusOK, "helloCallback", GreetingP{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/vnd.api+json; charset=UTF-8")
+	expect(t, res.Body.String(), "helloCallback({\"one\":\"hello\",\"two\":\"world\"});")
+}
+
+func TestJSONPDisabledCharset(t *testing.T) {
+	render := New(Options{
+		DisableCharset: true,
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSONP(w, http.StatusOK, "helloCallback", GreetingP{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentJSONP)
+	expect(t, res.Body.String(), "helloCallback({\"one\":\"hello\",\"two\":\"world\"});")
+}

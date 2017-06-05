@@ -46,3 +46,23 @@ func TestDataCustomMimeType(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), "image/jpeg")
 	expect(t, res.Body.String(), "..jpeg data..")
 }
+
+func TestDataCustomContentType(t *testing.T) {
+	render := New(Options{
+		BinaryContentType: "image/png",
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.Data(w, http.StatusOK, []byte("..png data.."))
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "image/png")
+	expect(t, res.Body.String(), "..png data..")
+}
