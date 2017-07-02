@@ -462,7 +462,7 @@ package main
 import (
     "net/http"
 
-    "github.com/codegangsta/negroni"
+    "github.com/urfave/negroni"
     "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
 )
 
