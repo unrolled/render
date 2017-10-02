@@ -100,7 +100,7 @@ type Options struct {
 	// Disables automatic rendering of http.StatusInternalServerError when an error occurs. Default is false.
 	DisableHTTPErrorRendering bool
 	// Enables using partials without the current filename suffix which allows use of the same template in multiple files. e.g {{ partial "carosuel" }} inside the home template will match carosel-home or carosel.
-	RenderPartialsWithoutPrefix bool
+	RenderPartialsWithoutSuffix bool
 }
 
 // HTMLOptions is a struct for overriding some rendering Options for specific HTML call.
@@ -299,7 +299,7 @@ func (r *Render) addLayoutFuncs(name string, binding interface{}) {
 		"block": func(partialName string) (template.HTML, error) {
 			log.Print("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
-			if r.TemplateLookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
+			if r.TemplateLookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutSuffix {
 				fullPartialName = partialName
 			}
 			if r.opt.RequireBlocks || r.TemplateLookup(fullPartialName) != nil {
@@ -311,7 +311,7 @@ func (r *Render) addLayoutFuncs(name string, binding interface{}) {
 		},
 		"partial": func(partialName string) (template.HTML, error) {
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
-			if r.TemplateLookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
+			if r.TemplateLookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutSuffix {
 				fullPartialName = partialName
 			}
 			if r.opt.RequirePartials || r.TemplateLookup(fullPartialName) != nil {
