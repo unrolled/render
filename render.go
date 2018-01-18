@@ -322,6 +322,10 @@ func (r *Render) addLayoutFuncs(name string, binding interface{}) {
 			}
 			return "", nil
 		},
+		"template": func(name string, tmplBinding interface{}) (template.HTML, error) {
+			buf, err := r.execute(name, tmplBinding)
+			return template.HTML(buf.String()), err
+		},
 	}
 	if tpl := r.templates.Lookup(name); tpl != nil {
 		tpl.Funcs(funcs)
