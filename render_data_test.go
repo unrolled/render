@@ -8,7 +8,7 @@ import (
 
 func TestDataBinaryBasic(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
@@ -28,7 +28,7 @@ func TestDataBinaryBasic(t *testing.T) {
 
 func TestDataCustomMimeType(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error

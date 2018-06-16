@@ -8,7 +8,7 @@ import (
 
 func TestTextBasic(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
