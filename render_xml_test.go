@@ -15,7 +15,7 @@ type GreetingXML struct {
 
 func TestXMLBasic(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
@@ -76,7 +76,7 @@ func TestXMLIndented(t *testing.T) {
 
 func TestXMLWithError(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
