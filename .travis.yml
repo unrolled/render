@@ -5,8 +5,11 @@ go:
   - 1.12.x
   - tip
 
+env:
+  - GO111MODULE=on
+
 install:
-  - go get github.com/eknkc/amber
+  - go mod download 
 
 script:
   - go test -v -race -tags=integration
