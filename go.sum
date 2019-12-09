@@ -1,2 +1,4 @@
 github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 h1:clC1lXBpe2kTj2VHdaIu9ajZQe4kcEY9j0NsnDDBZ3o=
 github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385/go.mod h1:0vRUJqYpeSZifjYj7uP3BG/gKcuzL9xWVV/Y+cK33KM=
+github.com/segmentio/encoding v0.1.3 h1:n3ks4dVnqpc+3iz1wCaSTA8YDi8qBZU2Auv2x8YtZB4=
+github.com/segmentio/encoding v0.1.3/go.mod h1:RWhr02uzMB9gQC1x+MfYxedtmBibb9cZ6Vv9VxRSSbw=

@@ -2,7 +2,7 @@ package render
 
 import (
 	"bytes"
-	"encoding/json"
+	"github.com/segmentio/encoding/json"
 	"encoding/xml"
 	"html/template"
 	"io"

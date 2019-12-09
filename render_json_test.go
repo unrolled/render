@@ -1,7 +1,7 @@
 package render
 
 import (
-	"encoding/json"
+	"github.com/segmentio/encoding/json"
 	"math"
 	"net/http"
 	"net/http/httptest"
