@@ -151,7 +151,7 @@ func (r *Render) prepareOptions() {
 		r.opt.Directory = "templates"
 	}
 	if r.opt.FileSystem == nil {
-		r.opt.FileSystem = &osFileSystem{}
+		r.opt.FileSystem = &LocalFileSystem{}
 	}
 	if len(r.opt.Extensions) == 0 {
 		r.opt.Extensions = []string{".tmpl"}

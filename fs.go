@@ -10,12 +10,12 @@ type FileSystem interface {
 	ReadFile(filename string) ([]byte, error)
 }
 
-type osFileSystem struct{}
+type LocalFileSystem struct{}
 
-func (osFileSystem) Walk(root string, walkFn filepath.WalkFunc) error {
+func (LocalFileSystem) Walk(root string, walkFn filepath.WalkFunc) error {
 	return filepath.Walk(root, walkFn)
 }
 
-func (osFileSystem) ReadFile(filename string) ([]byte, error) {
+func (LocalFileSystem) ReadFile(filename string) ([]byte, error) {
 	return ioutil.ReadFile(filename)
 }
