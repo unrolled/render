@@ -81,6 +81,7 @@ Render comes with a variety of configuration options _(Note: these are not the d
 // ...
 r := render.New(render.Options{
     Directory: "templates", // Specify what path to load the templates from.
+    FileSystem: &LocalFileSystem{}, // Specify filesystem from where files are loaded.
     Asset: func(name string) ([]byte, error) { // Load from an Asset function instead of file.
       return []byte("template content"), nil
     },
@@ -117,6 +118,7 @@ r := render.New()
 
 r := render.New(render.Options{
     Directory: "templates",
+    FileSystem: &LocalFileSystem{},
     Asset: nil,
     AssetNames: nil,
     Layout: "",
