@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -51,6 +50,8 @@ type Delims struct {
 type Options struct {
 	// Directory to load templates. Default is "templates".
 	Directory string
+	// FileSystem to access files
+	FileSystem FileSystem
 	// Asset function to use in place of directory. Defaults to nil.
 	Asset func(name string) ([]byte, error)
 	// AssetNames function to use in place of directory. Defaults to nil.
@@ -149,6 +150,9 @@ func (r *Render) prepareOptions() {
 	if len(r.opt.Directory) == 0 {
 		r.opt.Directory = "templates"
 	}
+	if r.opt.FileSystem == nil {
+		r.opt.FileSystem = &osFileSystem{}
+	}
 	if len(r.opt.Extensions) == 0 {
 		r.opt.Extensions = []string{".tmpl"}
 	}
@@ -186,7 +190,7 @@ func (r *Render) compileTemplatesFromDir() {
 	r.templates.Delims(r.opt.Delims.Left, r.opt.Delims.Right)
 
 	// Walk the supplied directory and compile any files that match our extension list.
-	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	r.opt.FileSystem.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
 		// These dirs should be excluded as they are not valid golang templates, but files under
 		// them should be treat as normal.
@@ -207,7 +211,7 @@ func (r *Render) compileTemplatesFromDir() {
 
 		for _, extension := range r.opt.Extensions {
 			if ext == extension {
-				buf, err := ioutil.ReadFile(path)
+				buf, err := r.opt.FileSystem.ReadFile(path)
 				if err != nil {
 					panic(err)
 				}
