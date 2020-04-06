@@ -60,8 +60,8 @@ type Options struct {
 	Layout string
 	// Extensions to parse template files from. Defaults to [".tmpl"].
 	Extensions []string
-	// Funcs is a slice of FuncMaps to apply to the template upon compilation. This is useful for helper functions. Defaults to [].
-	Funcs []template.FuncMap
+	// Funcs is a slice of FuncMaps to apply to the template upon compilation. This is useful for helper functions. Defaults to empty map.
+	Funcs template.FuncMap
 	// Delims sets the action delimiters to the specified strings in the Delims struct.
 	Delims Delims
 	// Appends the given character set to the Content-Type header. Default is "UTF-8".
@@ -109,6 +109,8 @@ type Options struct {
 type HTMLOptions struct {
 	// Layout template name. Overrides Options.Layout.
 	Layout string
+	// Funcs added to Options.Funcs.
+	Funcs template.FuncMap
 }
 
 // Render is a service that provides functions for easily writing JSON, XML,
@@ -220,9 +222,7 @@ func (r *Render) compileTemplatesFromDir() {
 				tmpl := r.templates.New(filepath.ToSlash(name))
 
 				// Add our funcmaps.
-				for _, funcs := range r.opt.Funcs {
-					tmpl.Funcs(funcs)
-				}
+				tmpl.Funcs(r.opt.Funcs)
 
 				// Break out if this parsing fails. We don't want any silent server starts.
 				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
@@ -265,9 +265,7 @@ func (r *Render) compileTemplatesFromAsset() {
 				tmpl := r.templates.New(filepath.ToSlash(name))
 
 				// Add our funcmaps.
-				for _, funcs := range r.opt.Funcs {
-					tmpl.Funcs(funcs)
-				}
+				tmpl.Funcs(r.opt.Funcs)
 
 				// Break out if this parsing fails. We don't want any silent server starts.
 				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
@@ -289,8 +287,8 @@ func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error
 	return buf, r.templates.ExecuteTemplate(buf, name, binding)
 }
 
-func (r *Render) addLayoutFuncs(name string, binding interface{}) {
-	funcs := template.FuncMap{
+func (r *Render) layoutFuncs(name string, binding interface{}) template.FuncMap {
+	return template.FuncMap{
 		"yield": func() (template.HTML, error) {
 			buf, err := r.execute(name, binding)
 			// Return safe HTML here since we are rendering our own template.
@@ -325,18 +323,27 @@ func (r *Render) addLayoutFuncs(name string, binding interface{}) {
 			return "", nil
 		},
 	}
-	if tpl := r.templates.Lookup(name); tpl != nil {
-		tpl.Funcs(funcs)
-	}
 }
 
 func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
+
+	layout := r.opt.Layout
+	funcs := r.opt.Funcs
+
 	if len(htmlOpt) > 0 {
-		return htmlOpt[0]
+		opt := htmlOpt[0]
+		if len(opt.Layout) > 0 {
+			layout = opt.Layout
+		}
+
+		for k, v := range opt.Funcs {
+			funcs[k] = v
+		}
 	}
 
 	return HTMLOptions{
-		Layout: r.opt.Layout,
+		Layout: layout,
+		Funcs:  funcs,
 	}
 }
 
@@ -374,10 +381,15 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 	}
 
 	opt := r.prepareHTMLOptions(htmlOpt)
-	// Assign a layout if there is one.
-	if len(opt.Layout) > 0 {
-		r.addLayoutFuncs(name, binding)
-		name = opt.Layout
+	if tpl := r.templates.Lookup(name); tpl != nil {
+		if len(opt.Layout) > 0 {
+			tpl.Funcs(r.layoutFuncs(name, binding))
+			name = opt.Layout
+		}
+
+		if len(opt.Funcs) > 0 {
+			tpl.Funcs(opt.Funcs)
+		}
 	}
 
 	head := Head{
