@@ -112,9 +112,11 @@ func TestHTMLExtensions(t *testing.T) {
 func TestHTMLFuncs(t *testing.T) {
 	render := New(Options{
 		Directory: "fixtures/custom_funcs",
-		Funcs: template.FuncMap{
-			"myCustomFunc": func() string {
-				return "My custom function"
+		Funcs: []template.FuncMap{
+			template.FuncMap{
+				"myCustomFunc": func() string {
+					return "My custom function"
+				},
 			},
 		},
 	})

@@ -61,7 +61,7 @@ type Options struct {
 	// Extensions to parse template files from. Defaults to [".tmpl"].
 	Extensions []string
 	// Funcs is a slice of FuncMaps to apply to the template upon compilation. This is useful for helper functions. Defaults to empty map.
-	Funcs template.FuncMap
+	Funcs []template.FuncMap
 	// Delims sets the action delimiters to the specified strings in the Delims struct.
 	Delims Delims
 	// Appends the given character set to the Content-Type header. Default is "UTF-8".
@@ -222,7 +222,9 @@ func (r *Render) compileTemplatesFromDir() {
 				tmpl := r.templates.New(filepath.ToSlash(name))
 
 				// Add our funcmaps.
-				tmpl.Funcs(r.opt.Funcs)
+				for _, funcs := range r.opt.Funcs {
+					tmpl.Funcs(funcs)
+				}
 
 				// Break out if this parsing fails. We don't want any silent server starts.
 				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
@@ -265,7 +267,9 @@ func (r *Render) compileTemplatesFromAsset() {
 				tmpl := r.templates.New(filepath.ToSlash(name))
 
 				// Add our funcmaps.
-				tmpl.Funcs(r.opt.Funcs)
+				for _, funcs := range r.opt.Funcs {
+					tmpl.Funcs(funcs)
+				}
 
 				// Break out if this parsing fails. We don't want any silent server starts.
 				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
@@ -326,9 +330,14 @@ func (r *Render) layoutFuncs(name string, binding interface{}) template.FuncMap 
 }
 
 func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
-
 	layout := r.opt.Layout
-	funcs := r.opt.Funcs
+	funcs := template.FuncMap{}
+
+	for _, tmp := range r.opt.Funcs {
+		for k, v := range tmp {
+			funcs[k] = v
+		}
+	}
 
 	if len(htmlOpt) > 0 {
 		opt := htmlOpt[0]
