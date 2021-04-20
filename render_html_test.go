@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bytes"
 	"errors"
 	"html/template"
 	"net/http"
@@ -65,6 +66,38 @@ func TestHTMLBasic(t *testing.T) {
 	expect(t, res.Code, 200)
 	expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
 	expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
+}
+
+func BenchmarkBigHTMLBuffers(b *testing.B) {
+	b.ReportAllocs()
+
+	render := New(Options{
+		Directory: "fixtures/basic",
+	})
+
+	var buf = new(bytes.Buffer)
+	for i := 0; i < b.N; i++ {
+		render.HTML(buf, http.StatusOK, "hello", "gophers")
+		buf.Reset()
+	}
+}
+
+func BenchmarkSmallHTMLBuffers(b *testing.B) {
+	b.ReportAllocs()
+
+	render := New(Options{
+		Directory: "fixtures/basic",
+
+		// Tiny 8 bytes buffers -> should lead to allocations
+		// on every template render
+		BufferPool: NewSizedBufferPool(32, 8),
+	})
+
+	var buf = new(bytes.Buffer)
+	for i := 0; i < b.N; i++ {
+		render.HTML(buf, http.StatusOK, "hello", "gophers")
+		buf.Reset()
+	}
 }
 
 func TestHTMLXHTML(t *testing.T) {
