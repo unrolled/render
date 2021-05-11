@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 const (
@@ -126,6 +128,7 @@ type Render struct {
 	opt             Options
 	templates       *template.Template
 	compiledCharset string
+	hasWatcher      bool
 }
 
 // New constructs a new Render instance with the supplied options.
@@ -140,7 +143,7 @@ func New(options ...Options) *Render {
 	}
 
 	r.prepareOptions()
-	r.compileTemplates()
+	r.CompileTemplates()
 
 	return &r
 }
@@ -187,7 +190,7 @@ func (r *Render) prepareOptions() {
 	}
 }
 
-func (r *Render) compileTemplates() {
+func (r *Render) CompileTemplates() {
 	if r.opt.Asset == nil || r.opt.AssetNames == nil {
 		r.compileTemplatesFromDir()
 		return
@@ -200,12 +203,24 @@ func (r *Render) compileTemplatesFromDir() {
 	tmpTemplates := template.New(dir)
 	tmpTemplates.Delims(r.opt.Delims.Left, r.opt.Delims.Right)
 
+	var watcher *fsnotify.Watcher
+	if r.opt.IsDevelopment {
+		var err error
+		watcher, err = fsnotify.NewWatcher()
+		if err != nil {
+			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v", err)
+		}
+	}
+
 	// Walk the supplied directory and compile any files that match our extension list.
 	r.opt.FileSystem.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
 		// These dirs should be excluded as they are not valid golang templates, but files under
 		// them should be treat as normal.
 		// If is a dir, return immediately (dir is not a valid golang template).
+		if info != nil && watcher != nil {
+			watcher.Add(path)
+		}
 		if info == nil || info.IsDir() {
 			return nil
 		}
@@ -246,6 +261,22 @@ func (r *Render) compileTemplatesFromDir() {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	r.templates = tmpTemplates
+	if r.hasWatcher = watcher != nil; r.hasWatcher {
+		go func() {
+			select {
+			case _, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+			case _, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+			}
+			watcher.Close()
+			r.CompileTemplates()
+		}()
+	}
 }
 
 func (r *Render) compileTemplatesFromAsset() {
@@ -401,10 +432,12 @@ func (r *Render) Data(w io.Writer, status int, v []byte) error {
 func (r *Render) HTML(w io.Writer, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
 
 	// If we are in development mode, recompile the templates on every HTML request.
-	if r.opt.IsDevelopment {
-		r.compileTemplates()
+	r.lock.RLock() // rlock here because we're reading the hasWatcher
+	if r.opt.IsDevelopment && !r.hasWatcher {
+		r.lock.RUnlock() // runlock here because CompileTemplates will lock
+		r.CompileTemplates()
+		r.lock.RLock()
 	}
-	r.lock.RLock()
 	templates := r.templates
 	r.lock.RUnlock()
 
