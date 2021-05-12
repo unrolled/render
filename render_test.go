@@ -40,6 +40,24 @@ func BenchmarkStreamingJSON(b *testing.B) {
 	}
 }
 
+func BenchmarkHTML(b *testing.B) {
+	render := New(Options{
+		Directory: "fixtures/basic",
+	})
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = render.HTML(w, http.StatusOK, "hello", "gophers")
+	})
+	req, _ := http.NewRequest("GET", "/foo", nil)
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			h.ServeHTTP(httptest.NewRecorder(), req)
+		}
+	})
+}
+
 /* Test Helper */
 func expect(t *testing.T, a interface{}, b interface{}) {
 	if a != b {
