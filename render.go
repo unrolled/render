@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
+	"sync/atomic"
 )
 
 const (
@@ -122,8 +122,7 @@ type HTMLOptions struct {
 type Render struct {
 	// Customize Secure with an Options struct.
 	opt             Options
-	templates       *template.Template
-	templatesLk     sync.RWMutex
+	templateStore   atomic.Value
 	compiledCharset string
 }
 
@@ -242,9 +241,7 @@ func (r *Render) compileTemplatesFromDir() {
 		return nil
 	})
 
-	r.templatesLk.Lock()
-	r.templates = tmpTemplates
-	r.templatesLk.Unlock()
+	r.templateStore.Store(tmpTemplates)
 }
 
 func (r *Render) compileTemplatesFromAsset() {
@@ -289,28 +286,25 @@ func (r *Render) compileTemplatesFromAsset() {
 			}
 		}
 	}
-
-	r.templatesLk.Lock()
-	r.templates = tmpTemplates
-	r.templatesLk.Unlock()
+	r.templateStore.Store(tmpTemplates)
 }
 
 // TemplateLookup is a wrapper around template.Lookup and returns
 // the template with the given name that is associated with t, or nil
 // if there is no such template.
 func (r *Render) TemplateLookup(t string) *template.Template {
-	return r.templates.Lookup(t)
+	return r.templateStore.Load().(*template.Template).Lookup(t)
 }
 
-func (r *Render) execute(name string, binding interface{}) (*bytes.Buffer, error) {
+func (r *Render) execute(templates *template.Template, name string, binding interface{}) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
-	return buf, r.templates.ExecuteTemplate(buf, name, binding)
+	return buf, templates.ExecuteTemplate(buf, name, binding)
 }
 
-func (r *Render) layoutFuncs(name string, binding interface{}) template.FuncMap {
+func (r *Render) layoutFuncs(templates *template.Template, name string, binding interface{}) template.FuncMap {
 	return template.FuncMap{
 		"yield": func() (template.HTML, error) {
-			buf, err := r.execute(name, binding)
+			buf, err := r.execute(templates, name, binding)
 			// Return safe HTML here since we are rendering our own template.
 			return template.HTML(buf.String()), err
 		},
@@ -320,11 +314,11 @@ func (r *Render) layoutFuncs(name string, binding interface{}) template.FuncMap 
 		"block": func(partialName string) (template.HTML, error) {
 			log.Print("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
-			if r.TemplateLookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
+			if templates.Lookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
 				fullPartialName = partialName
 			}
-			if r.opt.RequireBlocks || r.TemplateLookup(fullPartialName) != nil {
-				buf, err := r.execute(fullPartialName, binding)
+			if r.opt.RequireBlocks || templates.Lookup(fullPartialName) != nil {
+				buf, err := r.execute(templates, fullPartialName, binding)
 				// Return safe HTML here since we are rendering our own template.
 				return template.HTML(buf.String()), err
 			}
@@ -332,11 +326,11 @@ func (r *Render) layoutFuncs(name string, binding interface{}) template.FuncMap 
 		},
 		"partial": func(partialName string) (template.HTML, error) {
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
-			if r.TemplateLookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
+			if templates.Lookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
 				fullPartialName = partialName
 			}
-			if r.opt.RequirePartials || r.TemplateLookup(fullPartialName) != nil {
-				buf, err := r.execute(fullPartialName, binding)
+			if r.opt.RequirePartials || templates.Lookup(fullPartialName) != nil {
+				buf, err := r.execute(templates, fullPartialName, binding)
 				// Return safe HTML here since we are rendering our own template.
 				return template.HTML(buf.String()), err
 			}
@@ -403,13 +397,12 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 		r.compileTemplates()
 	}
 
-	r.templatesLk.RLock()
-	defer r.templatesLk.RUnlock()
+	templates := r.templateStore.Load().(*template.Template)
 
 	opt := r.prepareHTMLOptions(htmlOpt)
-	if tpl := r.templates.Lookup(name); tpl != nil {
+	if tpl := templates.Lookup(name); tpl != nil {
 		if len(opt.Layout) > 0 {
-			tpl.Funcs(r.layoutFuncs(name, binding))
+			tpl.Funcs(r.layoutFuncs(templates, name, binding))
 			name = opt.Layout
 		}
 
@@ -426,7 +419,7 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 	h := HTML{
 		Head:      head,
 		Name:      name,
-		Templates: r.templates,
+		Templates: templates,
 		bp:        r.opt.BufferPool,
 	}
 
