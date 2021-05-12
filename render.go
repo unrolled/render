@@ -120,9 +120,9 @@ type HTMLOptions struct {
 // Render is a service that provides functions for easily writing JSON, XML,
 // binary data, and HTML templates out to a HTTP Response.
 type Render struct {
+	templateStore atomic.Value
 	// Customize Secure with an Options struct.
 	opt             Options
-	templateStore   atomic.Value
 	compiledCharset string
 }
 
