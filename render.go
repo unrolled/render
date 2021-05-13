@@ -119,8 +119,8 @@ type HTMLOptions struct {
 	Funcs template.FuncMap
 }
 
-// RWLock represents a rwmutex interface
-type RWLock interface {
+// rwLock represents an interface for sync.RWMutex
+type rwLock interface {
 	Lock()
 	Unlock()
 	RLock()
@@ -128,8 +128,8 @@ type RWLock interface {
 }
 
 var (
-	_ RWLock = &sync.RWMutex{}
-	_ RWLock = emptyLock{}
+	_ rwLock = &sync.RWMutex{}
+	_ rwLock = emptyLock{}
 )
 
 // emptyLock is a dummy RWLock implementation
@@ -143,7 +143,7 @@ func (emptyLock) RUnlock() {}
 // Render is a service that provides functions for easily writing JSON, XML,
 // binary data, and HTML templates out to a HTTP Response.
 type Render struct {
-	lock sync.RWMutex
+	lock rwLock
 
 	// Customize Secure with an Options struct.
 	opt             Options
@@ -163,9 +163,9 @@ func New(options ...Options) *Render {
 		opt: o,
 	}
 	if o.IsDevelopment {
-		r.templatesLk = &sync.RWMutex{}
+		r.lock = &sync.RWMutex{}
 	} else {
-		r.templatesLk = emptyLock{}
+		r.lock = emptyLock{}
 	}
 
 	r.prepareOptions()
