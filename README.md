@@ -171,7 +171,27 @@ admin/edit
 home
 ~~~
 
-You can also load templates from memory by providing the Asset and AssetNames options,
+Templates can be loaded from an `embed.FS`.
+
+~~~ go
+// ...
+
+//go:embed templates/*.html templates/*.tmpl
+var embeddedTemplates embed.FS
+
+// ...
+
+r := render.New(render.Options{
+    Directory: "templates",
+    FileSystem: &EmbedFileSystem{
+        FS: embeddedTemplates,
+    },
+    Extensions: []string{".html", ".tmpl"},
+})
+// ...
+~~~
+
+You can also load templates from memory by providing the `Asset` and `AssetNames` options,
 e.g. when generating an asset file using [go-bindata](https://github.com/jteeuwen/go-bindata).
 
 ### Layouts
