@@ -183,7 +183,7 @@ var embeddedTemplates embed.FS
 
 r := render.New(render.Options{
     Directory: "templates",
-    FileSystem: &EmbedFileSystem{
+    FileSystem: &render.EmbedFileSystem{
         FS: embeddedTemplates,
     },
     Extensions: []string{".html", ".tmpl"},
