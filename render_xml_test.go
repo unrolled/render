@@ -15,7 +15,7 @@ type GreetingXML struct {
 
 func TestXMLBasic(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
@@ -24,7 +24,7 @@ func TestXMLBasic(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -45,7 +45,7 @@ func TestXMLPrefix(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -65,7 +65,7 @@ func TestXMLIndented(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -76,7 +76,7 @@ func TestXMLIndented(t *testing.T) {
 
 func TestXMLWithError(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
@@ -85,7 +85,7 @@ func TestXMLWithError(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -103,7 +103,7 @@ func TestXMLCustomContentType(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -123,7 +123,7 @@ func TestXMLDisabledCharset(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

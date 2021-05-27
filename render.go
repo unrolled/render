@@ -92,6 +92,9 @@ type Options struct {
 	XMLContentType string
 	// If IsDevelopment is set to true, this will recompile the templates on every request. Default is false.
 	IsDevelopment bool
+	// If UseMutexLock is set to true, the standard `sync.RWMutex` lock will be used instead of the lock free implementation. Default is false.
+	// Note that when `IsDevelopment` is true, the standard `sync.RWMutex` lock is always used. Lock free is only a production feature.
+	UseMutexLock bool
 	// Unescape HTML characters "&<>" to their original values. Default is false.
 	UnEscapeHTML bool
 	// Streams JSON responses instead of marshalling prior to sending. Default is false.
@@ -105,7 +108,6 @@ type Options struct {
 	// Enables using partials without the current filename suffix which allows use of the same template in multiple files. e.g {{ partial "carosuel" }} inside the home template will match carosel-home or carosel.
 	// ***NOTE*** - This option should be named RenderPartialsWithoutSuffix as that is what it does. "Prefix" is a typo. Maintaining the existing name for backwards compatibility.
 	RenderPartialsWithoutPrefix bool
-
 	// BufferPool to use when rendering HTML templates. If none is supplied
 	// defaults to SizedBufferPool of size 32 with 512KiB buffers.
 	BufferPool GenericBufferPool
@@ -118,27 +120,6 @@ type HTMLOptions struct {
 	// Funcs added to Options.Funcs.
 	Funcs template.FuncMap
 }
-
-// rwLock represents an interface for sync.RWMutex
-type rwLock interface {
-	Lock()
-	Unlock()
-	RLock()
-	RUnlock()
-}
-
-var (
-	_ rwLock = &sync.RWMutex{}
-	_ rwLock = emptyLock{}
-)
-
-// emptyLock is a dummy RWLock implementation
-type emptyLock struct{}
-
-func (emptyLock) Lock()    {}
-func (emptyLock) Unlock()  {}
-func (emptyLock) RLock()   {}
-func (emptyLock) RUnlock() {}
 
 // Render is a service that provides functions for easily writing JSON, XML,
 // binary data, and HTML templates out to a HTTP Response.
@@ -159,14 +140,7 @@ func New(options ...Options) *Render {
 		o = options[0]
 	}
 
-	r := Render{
-		opt: o,
-	}
-	if o.IsDevelopment {
-		r.lock = &sync.RWMutex{}
-	} else {
-		r.lock = emptyLock{}
-	}
+	r := Render{opt: o}
 
 	r.prepareOptions()
 	r.CompileTemplates()
@@ -179,10 +153,9 @@ func (r *Render) prepareOptions() {
 	if len(r.opt.Charset) == 0 {
 		r.opt.Charset = defaultCharset
 	}
-	if r.opt.DisableCharset == false {
+	if !r.opt.DisableCharset {
 		r.compiledCharset = "; charset=" + r.opt.Charset
 	}
-
 	if len(r.opt.Directory) == 0 {
 		r.opt.Directory = "templates"
 	}
@@ -211,8 +184,12 @@ func (r *Render) prepareOptions() {
 		r.opt.XMLContentType = ContentXML
 	}
 	if r.opt.BufferPool == nil {
-		// 32 buffers of size 512KiB each
-		r.opt.BufferPool = NewSizedBufferPool(32, 1<<19)
+		r.opt.BufferPool = NewSizedBufferPool(32, 1<<19) // 32 buffers of size 512KiB each
+	}
+	if r.opt.IsDevelopment || r.opt.UseMutexLock {
+		r.lock = &sync.RWMutex{}
+	} else {
+		r.lock = &emptyLock{}
 	}
 }
 
@@ -221,6 +198,7 @@ func (r *Render) CompileTemplates() {
 		r.compileTemplatesFromDir()
 		return
 	}
+
 	r.compileTemplatesFromAsset()
 }
 
@@ -234,18 +212,18 @@ func (r *Render) compileTemplatesFromDir() {
 		var err error
 		watcher, err = fsnotify.NewWatcher()
 		if err != nil {
-			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v", err)
+			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v\n", err)
 		}
 	}
 
 	// Walk the supplied directory and compile any files that match our extension list.
-	r.opt.FileSystem.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	_ = r.opt.FileSystem.Walk(dir, func(path string, info os.FileInfo, _ error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
 		// These dirs should be excluded as they are not valid golang templates, but files under
 		// them should be treat as normal.
 		// If is a dir, return immediately (dir is not a valid golang template).
 		if info != nil && watcher != nil {
-			watcher.Add(path)
+			_ = watcher.Add(path)
 		}
 		if info == nil || info.IsDir() {
 			return nil
@@ -257,7 +235,7 @@ func (r *Render) compileTemplatesFromDir() {
 		}
 
 		ext := ""
-		if strings.Index(rel, ".") != -1 {
+		if strings.Contains(rel, ".") {
 			ext = filepath.Ext(rel)
 		}
 
@@ -321,13 +299,12 @@ func (r *Render) compileTemplatesFromAsset() {
 		}
 
 		ext := ""
-		if strings.Index(rel, ".") != -1 {
+		if strings.Contains(rel, ".") {
 			ext = "." + strings.Join(strings.Split(rel, ".")[1:], ".")
 		}
 
 		for _, extension := range r.opt.Extensions {
 			if ext == extension {
-
 				buf, err := r.opt.Asset(path)
 				if err != nil {
 					panic(err)
@@ -377,7 +354,7 @@ func (r *Render) layoutFuncs(templates *template.Template, name string, binding 
 			return name, nil
 		},
 		"block": func(partialName string) (template.HTML, error) {
-			log.Print("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
+			log.Println("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
 			if templates.Lookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
 				fullPartialName = partialName
@@ -456,7 +433,6 @@ func (r *Render) Data(w io.Writer, status int, v []byte) error {
 
 // HTML builds up the response from the specified template and bindings.
 func (r *Render) HTML(w io.Writer, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
-
 	// If we are in development mode, recompile the templates on every HTML request.
 	r.lock.RLock() // rlock here because we're reading the hasWatcher
 	if r.opt.IsDevelopment && !r.hasWatcher {
