@@ -1,7 +1,6 @@
 package render
 
 import (
-	"context"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -22,7 +21,7 @@ func TestJSONPBasic(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -42,7 +41,7 @@ func TestJSONPRenderIndented(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -60,7 +59,7 @@ func TestJSONPWithError(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -78,7 +77,7 @@ func TestJSONPCustomContentType(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -98,7 +97,7 @@ func TestJSONPDisabledCharset(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

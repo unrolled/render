@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+var ctx = context.Background()
+
 func TestLockConfig(t *testing.T) {
 	mutex := reflect.TypeOf(&sync.RWMutex{}).Kind()
 	empty := reflect.TypeOf(&emptyLock{}).Kind()
@@ -47,7 +49,7 @@ func BenchmarkNormalJSON(b *testing.B) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 
 	for i := 0; i < b.N; i++ {
 		h.ServeHTTP(res, req)
@@ -64,7 +66,7 @@ func BenchmarkStreamingJSON(b *testing.B) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 
 	for i := 0; i < b.N; i++ {
 		h.ServeHTTP(res, req)
@@ -79,7 +81,7 @@ func BenchmarkHTML(b *testing.B) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {

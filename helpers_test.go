@@ -1,7 +1,6 @@
 package render
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +18,7 @@ func TestRenderPartial(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	if err != nil {
 		t.Fatalf("couldn't create a request. err = %s", err)
 	}
@@ -41,7 +40,7 @@ func TestRenderPartialRequirePartialsOff(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	if err != nil {
 		t.Fatalf("couldn't create a request. err = %s", err)
 	}
@@ -62,7 +61,7 @@ func TestRenderPartialRequirePartialsOn(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
 	if err != nil {
 		t.Fatalf("couldn't create a request. err = %s", err)
 	}
