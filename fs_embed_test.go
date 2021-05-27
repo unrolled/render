@@ -9,11 +9,11 @@ import (
 	"testing"
 )
 
-//go:embed fixtures/*/*.html fixtures/*/*.tmpl fixtures/*/*/*.tmpl
+//go:embed testdata/*/*.html testdata/*/*.tmpl testdata/*/*/*.tmpl
 var EmbedFixtures embed.FS
 
 func TestEmbedFileSystemTemplateLookup(t *testing.T) {
-	baseDir := "fixtures/template-dir-test"
+	baseDir := "testdata/template-dir-test"
 	fname0Rel := "0"
 	fname1Rel := "subdir/1"
 	fnameShouldParsedRel := "dedicated.tmpl/notbad"
@@ -35,7 +35,7 @@ func TestEmbedFileSystemTemplateLookup(t *testing.T) {
 
 func TestEmbedFileSystemHTMLBasic(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 		FileSystem: &EmbedFileSystem{
 			FS: EmbedFixtures,
 		},

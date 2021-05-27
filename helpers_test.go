@@ -8,7 +8,7 @@ import (
 
 func TestRenderPartial(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/partials",
+		Directory: "testdata/partials",
 		Layout:    "layout",
 	})
 
@@ -30,7 +30,7 @@ func TestRenderPartial(t *testing.T) {
 
 func TestRenderPartialRequirePartialsOff(t *testing.T) {
 	render := New(Options{
-		Directory:       "fixtures/partials",
+		Directory:       "testdata/partials",
 		Layout:          "layout",
 		RequirePartials: false,
 	})
@@ -51,7 +51,7 @@ func TestRenderPartialRequirePartialsOff(t *testing.T) {
 
 func TestRenderPartialRequirePartialsOn(t *testing.T) {
 	render := New(Options{
-		Directory:       "fixtures/partials",
+		Directory:       "testdata/partials",
 		Layout:          "layout",
 		RequirePartials: true,
 	})

@@ -42,7 +42,7 @@ func BenchmarkStreamingJSON(b *testing.B) {
 
 func BenchmarkHTML(b *testing.B) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

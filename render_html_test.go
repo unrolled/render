@@ -11,7 +11,7 @@ import (
 
 func TestHTMLBad(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	var err error
@@ -30,7 +30,7 @@ func TestHTMLBad(t *testing.T) {
 
 func TestHTMLBadDisableHTTPErrorRendering(t *testing.T) {
 	render := New(Options{
-		Directory:                 "fixtures/basic",
+		Directory:                 "testdata/basic",
 		DisableHTTPErrorRendering: true,
 	})
 
@@ -50,7 +50,7 @@ func TestHTMLBadDisableHTTPErrorRendering(t *testing.T) {
 
 func TestHTMLBasic(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	var err error
@@ -72,7 +72,7 @@ func BenchmarkBigHTMLBuffers(b *testing.B) {
 	b.ReportAllocs()
 
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	var buf = new(bytes.Buffer)
@@ -86,7 +86,7 @@ func BenchmarkSmallHTMLBuffers(b *testing.B) {
 	b.ReportAllocs()
 
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 
 		// Tiny 8 bytes buffers -> should lead to allocations
 		// on every template render
@@ -102,7 +102,7 @@ func BenchmarkSmallHTMLBuffers(b *testing.B) {
 
 func TestHTMLXHTML(t *testing.T) {
 	render := New(Options{
-		Directory:       "fixtures/basic",
+		Directory:       "testdata/basic",
 		HTMLContentType: ContentXHTML,
 	})
 
@@ -123,7 +123,7 @@ func TestHTMLXHTML(t *testing.T) {
 
 func TestHTMLExtensions(t *testing.T) {
 	render := New(Options{
-		Directory:  "fixtures/basic",
+		Directory:  "testdata/basic",
 		Extensions: []string{".tmpl", ".html"},
 	})
 
@@ -144,7 +144,7 @@ func TestHTMLExtensions(t *testing.T) {
 
 func TestHTMLFuncs(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/custom_funcs",
+		Directory: "testdata/custom_funcs",
 		Funcs: []template.FuncMap{{
 			"myCustomFunc": func() string {
 				return "My custom function"
@@ -167,7 +167,7 @@ func TestHTMLFuncs(t *testing.T) {
 
 func TestRenderLayout(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 		Layout:    "layout",
 	})
 
@@ -186,7 +186,7 @@ func TestRenderLayout(t *testing.T) {
 
 func TestHTMLLayoutCurrent(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 		Layout:    "current_layout",
 	})
 
@@ -205,7 +205,7 @@ func TestHTMLLayoutCurrent(t *testing.T) {
 
 func TestHTMLNested(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	var err error
@@ -225,7 +225,7 @@ func TestHTMLNested(t *testing.T) {
 
 func TestHTMLBadPath(t *testing.T) {
 	render := New(Options{
-		Directory: "../../../../../../../../../../../../../../../../fixtures/basic",
+		Directory: "../../../../../../../../../../../../../../../../testdata/basic",
 	})
 
 	var err error
@@ -244,7 +244,7 @@ func TestHTMLBadPath(t *testing.T) {
 func TestHTMLDelimiters(t *testing.T) {
 	render := New(Options{
 		Delims:    Delims{"{[{", "}]}"},
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	var err error
@@ -264,7 +264,7 @@ func TestHTMLDelimiters(t *testing.T) {
 
 func TestHTMLDefaultCharset(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	var err error
@@ -287,7 +287,7 @@ func TestHTMLDefaultCharset(t *testing.T) {
 
 func TestHTMLOverrideLayout(t *testing.T) {
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 		Layout:    "layout",
 	})
 
@@ -311,7 +311,7 @@ func TestHTMLOverrideLayout(t *testing.T) {
 func TestHTMLNoRace(t *testing.T) {
 	// This test used to fail if run with -race
 	render := New(Options{
-		Directory: "fixtures/basic",
+		Directory: "testdata/basic",
 	})
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -375,7 +375,7 @@ func TestHTMLLoadFromAssets(t *testing.T) {
 }
 
 func TestCompileTemplatesFromDir(t *testing.T) {
-	baseDir := "fixtures/template-dir-test"
+	baseDir := "testdata/template-dir-test"
 	fname0Rel := "0"
 	fname1Rel := "subdir/1"
 	fnameShouldParsedRel := "dedicated.tmpl/notbad"
@@ -395,7 +395,7 @@ func TestCompileTemplatesFromDir(t *testing.T) {
 
 func TestHTMLDisabledCharset(t *testing.T) {
 	render := New(Options{
-		Directory:      "fixtures/basic",
+		Directory:      "testdata/basic",
 		DisableCharset: true,
 	})
 
