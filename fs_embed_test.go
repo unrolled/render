@@ -3,6 +3,7 @@
 package render
 
 import (
+	"context"
 	"embed"
 	"net/http"
 	"net/http/httptest"
@@ -47,7 +48,7 @@ func TestEmbedFileSystemHTMLBasic(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

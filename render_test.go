@@ -1,6 +1,7 @@
 package render
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -12,11 +13,11 @@ func BenchmarkNormalJSON(b *testing.B) {
 	render := New()
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 200, Greeting{"hello", "world"})
+		_ = render.JSON(w, 200, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 
 	for i := 0; i < b.N; i++ {
 		h.ServeHTTP(res, req)
@@ -29,11 +30,11 @@ func BenchmarkStreamingJSON(b *testing.B) {
 	})
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, 200, Greeting{"hello", "world"})
+		_ = render.JSON(w, 200, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 
 	for i := 0; i < b.N; i++ {
 		h.ServeHTTP(res, req)
@@ -48,7 +49,7 @@ func BenchmarkHTML(b *testing.B) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {

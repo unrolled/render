@@ -22,4 +22,4 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Test
-        run: go test -v -cover -race -count=1 ./...
+        run: make test

@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"html/template"
 	"net/http"
@@ -20,7 +21,7 @@ func TestHTMLBad(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -40,7 +41,7 @@ func TestHTMLBadDisableHTTPErrorRendering(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -59,7 +60,7 @@ func TestHTMLBasic(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -77,7 +78,7 @@ func BenchmarkBigHTMLBuffers(b *testing.B) {
 
 	var buf = new(bytes.Buffer)
 	for i := 0; i < b.N; i++ {
-		render.HTML(buf, http.StatusOK, "hello", "gophers")
+		_ = render.HTML(buf, http.StatusOK, "hello", "gophers")
 		buf.Reset()
 	}
 }
@@ -95,7 +96,7 @@ func BenchmarkSmallHTMLBuffers(b *testing.B) {
 
 	var buf = new(bytes.Buffer)
 	for i := 0; i < b.N; i++ {
-		render.HTML(buf, http.StatusOK, "hello", "gophers")
+		_ = render.HTML(buf, http.StatusOK, "hello", "gophers")
 		buf.Reset()
 	}
 }
@@ -112,7 +113,7 @@ func TestHTMLXHTML(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -133,7 +134,7 @@ func TestHTMLExtensions(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -158,7 +159,7 @@ func TestHTMLFuncs(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -177,7 +178,7 @@ func TestRenderLayout(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -196,7 +197,7 @@ func TestHTMLLayoutCurrent(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -214,7 +215,7 @@ func TestHTMLNested(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -234,7 +235,7 @@ func TestHTMLBadPath(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -253,7 +254,7 @@ func TestHTMLDelimiters(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -273,7 +274,7 @@ func TestHTMLDefaultCharset(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -299,7 +300,7 @@ func TestHTMLOverrideLayout(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -322,7 +323,7 @@ func TestHTMLNoRace(t *testing.T) {
 	done := make(chan bool)
 	doreq := func() {
 		res := httptest.NewRecorder()
-		req, _ := http.NewRequest("GET", "/foo", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 
 		h.ServeHTTP(res, req)
 
@@ -365,7 +366,7 @@ func TestHTMLLoadFromAssets(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -405,7 +406,7 @@ func TestHTMLDisabledCharset(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

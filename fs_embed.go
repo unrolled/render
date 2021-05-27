@@ -16,7 +16,7 @@ type EmbedFileSystem struct {
 var _ FileSystem = &EmbedFileSystem{}
 
 func (e *EmbedFileSystem) Walk(root string, walkFn filepath.WalkFunc) error {
-	return fs.WalkDir(e.FS, root, func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(e.FS, root, func(path string, d fs.DirEntry, _ error) error {
 		if d == nil {
 			return nil
 		}

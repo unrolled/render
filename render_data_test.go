@@ -1,6 +1,7 @@
 package render
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -8,7 +9,7 @@ import (
 
 func TestDataBinaryBasic(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
@@ -17,7 +18,7 @@ func TestDataBinaryBasic(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -28,7 +29,7 @@ func TestDataBinaryBasic(t *testing.T) {
 
 func TestDataCustomMimeType(t *testing.T) {
 	render := New(Options{
-	// nothing here to configure
+		// nothing here to configure
 	})
 
 	var err error
@@ -38,7 +39,7 @@ func TestDataCustomMimeType(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -58,7 +59,7 @@ func TestDataCustomContentType(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

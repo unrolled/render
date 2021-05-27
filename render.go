@@ -158,10 +158,9 @@ func (r *Render) prepareOptions() {
 	if len(r.opt.Charset) == 0 {
 		r.opt.Charset = defaultCharset
 	}
-	if r.opt.DisableCharset == false {
+	if !r.opt.DisableCharset {
 		r.compiledCharset = "; charset=" + r.opt.Charset
 	}
-
 	if len(r.opt.Directory) == 0 {
 		r.opt.Directory = "templates"
 	}
@@ -218,13 +217,13 @@ func (r *Render) compileTemplatesFromDir() {
 	}
 
 	// Walk the supplied directory and compile any files that match our extension list.
-	r.opt.FileSystem.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	_ = r.opt.FileSystem.Walk(dir, func(path string, info os.FileInfo, _ error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
 		// These dirs should be excluded as they are not valid golang templates, but files under
 		// them should be treat as normal.
 		// If is a dir, return immediately (dir is not a valid golang template).
 		if info != nil && watcher != nil {
-			watcher.Add(path)
+			_ = watcher.Add(path)
 		}
 		if info == nil || info.IsDir() {
 			return nil
@@ -236,7 +235,7 @@ func (r *Render) compileTemplatesFromDir() {
 		}
 
 		ext := ""
-		if strings.Index(rel, ".") != -1 {
+		if strings.Contains(rel, ".") {
 			ext = filepath.Ext(rel)
 		}
 
@@ -300,13 +299,12 @@ func (r *Render) compileTemplatesFromAsset() {
 		}
 
 		ext := ""
-		if strings.Index(rel, ".") != -1 {
+		if strings.Contains(rel, ".") {
 			ext = "." + strings.Join(strings.Split(rel, ".")[1:], ".")
 		}
 
 		for _, extension := range r.opt.Extensions {
 			if ext == extension {
-
 				buf, err := r.opt.Asset(path)
 				if err != nil {
 					panic(err)
@@ -435,7 +433,6 @@ func (r *Render) Data(w io.Writer, status int, v []byte) error {
 
 // HTML builds up the response from the specified template and bindings.
 func (r *Render) HTML(w io.Writer, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
-
 	// If we are in development mode, recompile the templates on every HTML request.
 	r.lock.RLock() // rlock here because we're reading the hasWatcher
 	if r.opt.IsDevelopment && !r.hasWatcher {
