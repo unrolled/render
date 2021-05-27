@@ -92,6 +92,9 @@ type Options struct {
 	XMLContentType string
 	// If IsDevelopment is set to true, this will recompile the templates on every request. Default is false.
 	IsDevelopment bool
+	// If UseMutexLock is set to true, the standard `sync.RWMutex` lock will be used instead of the lock free implementation. Default is false.
+	// Note that when `IsDevelopment` is true, the standard `sync.RWMutex` lock is always used. Lock free is only a production feature.
+	UseMutexLock bool
 	// Unescape HTML characters "&<>" to their original values. Default is false.
 	UnEscapeHTML bool
 	// Streams JSON responses instead of marshalling prior to sending. Default is false.
@@ -105,7 +108,6 @@ type Options struct {
 	// Enables using partials without the current filename suffix which allows use of the same template in multiple files. e.g {{ partial "carosuel" }} inside the home template will match carosel-home or carosel.
 	// ***NOTE*** - This option should be named RenderPartialsWithoutSuffix as that is what it does. "Prefix" is a typo. Maintaining the existing name for backwards compatibility.
 	RenderPartialsWithoutPrefix bool
-
 	// BufferPool to use when rendering HTML templates. If none is supplied
 	// defaults to SizedBufferPool of size 32 with 512KiB buffers.
 	BufferPool GenericBufferPool
@@ -138,14 +140,7 @@ func New(options ...Options) *Render {
 		o = options[0]
 	}
 
-	r := Render{
-		opt: o,
-	}
-	if o.IsDevelopment {
-		r.lock = &sync.RWMutex{}
-	} else {
-		r.lock = emptyLock{}
-	}
+	r := Render{opt: o}
 
 	r.prepareOptions()
 	r.CompileTemplates()
@@ -189,8 +184,12 @@ func (r *Render) prepareOptions() {
 		r.opt.XMLContentType = ContentXML
 	}
 	if r.opt.BufferPool == nil {
-		// 32 buffers of size 512KiB each
-		r.opt.BufferPool = NewSizedBufferPool(32, 1<<19)
+		r.opt.BufferPool = NewSizedBufferPool(32, 1<<19) // 32 buffers of size 512KiB each
+	}
+	if r.opt.IsDevelopment || r.opt.UseMutexLock {
+		r.lock = &sync.RWMutex{}
+	} else {
+		r.lock = &emptyLock{}
 	}
 }
 
@@ -199,6 +198,7 @@ func (r *Render) CompileTemplates() {
 		r.compileTemplatesFromDir()
 		return
 	}
+
 	r.compileTemplatesFromAsset()
 }
 
@@ -212,7 +212,7 @@ func (r *Render) compileTemplatesFromDir() {
 		var err error
 		watcher, err = fsnotify.NewWatcher()
 		if err != nil {
-			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v", err)
+			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v\n", err)
 		}
 	}
 
@@ -354,7 +354,7 @@ func (r *Render) layoutFuncs(templates *template.Template, name string, binding 
 			return name, nil
 		},
 		"block": func(partialName string) (template.HTML, error) {
-			log.Print("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
+			log.Println("Render's `block` implementation is now depericated. Use `partial` as a drop in replacement.")
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
 			if templates.Lookup(fullPartialName) == nil && r.opt.RenderPartialsWithoutPrefix {
 				fullPartialName = partialName

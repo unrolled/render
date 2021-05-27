@@ -2,7 +2,7 @@ package render
 
 import "sync"
 
-// rwLock represents an interface for sync.RWMutex
+// rwLock represents an interface for sync.RWMutex.
 type rwLock interface {
 	Lock()
 	Unlock()
@@ -11,11 +11,12 @@ type rwLock interface {
 }
 
 var (
+	// Ensure our interface is correct.
 	_ rwLock = &sync.RWMutex{}
 	_ rwLock = emptyLock{}
 )
 
-// emptyLock is a dummy RWLock implementation
+// emptyLock is a noop RWLock implementation.
 type emptyLock struct{}
 
 func (emptyLock) Lock()    {}

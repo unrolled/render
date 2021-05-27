@@ -5,8 +5,38 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"sync"
 	"testing"
 )
+
+func TestLockConfig(t *testing.T) {
+	mutex := reflect.TypeOf(&sync.RWMutex{}).Kind()
+	empty := reflect.TypeOf(&emptyLock{}).Kind()
+
+	r1 := New(Options{
+		IsDevelopment: true,
+		UseMutexLock:  false,
+	})
+	expect(t, reflect.TypeOf(r1.lock).Kind(), mutex)
+
+	r2 := New(Options{
+		IsDevelopment: true,
+		UseMutexLock:  true,
+	})
+	expect(t, reflect.TypeOf(r2.lock).Kind(), mutex)
+
+	r3 := New(Options{
+		IsDevelopment: false,
+		UseMutexLock:  true,
+	})
+	expect(t, reflect.TypeOf(r3.lock).Kind(), mutex)
+
+	r4 := New(Options{
+		IsDevelopment: false,
+		UseMutexLock:  false,
+	})
+	expect(t, reflect.TypeOf(r4.lock).Kind(), empty)
+}
 
 /* Benchmarks */
 func BenchmarkNormalJSON(b *testing.B) {
