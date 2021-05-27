@@ -23,7 +23,7 @@ import (
     "encoding/xml"
     "net/http"
 
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 type ExampleXml struct {
@@ -263,7 +263,7 @@ import (
     "encoding/xml"
     "net/http"
 
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 type ExampleXml struct {
@@ -317,7 +317,7 @@ import (
     "encoding/xml"
     "net/http"
 
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 type ExampleXml struct {
@@ -396,7 +396,7 @@ import (
     "net/http"
 
     "github.com/labstack/echo"
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 type RenderWrapper struct { // We need to wrap the renderer because we need a different signature for echo.
@@ -431,7 +431,7 @@ import (
     "net/http"
 
     "github.com/gin-gonic/gin"
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 func main() {
@@ -459,7 +459,7 @@ import (
 
     "github.com/zenazn/goji"
     "github.com/zenazn/goji/web"
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 func main() {
@@ -483,7 +483,7 @@ import (
     "net/http"
 
     "github.com/urfave/negroni"
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 func main() {
@@ -511,7 +511,7 @@ import (
     "net/http"
 
     "github.com/pilu/traffic"
-    "github.com/unrolled/render"  // or "gopkg.in/unrolled/render.v1"
+    "github.com/unrolled/render"
 )
 
 func main() {
