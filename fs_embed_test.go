@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-//go:embed fixtures/*/*.html fixtures/*/*.tmpl fixtures/*/*/*.tmpl fixtures/*/*.amber fixtures/*/*/*.amber
+//go:embed fixtures/*/*.html fixtures/*/*.tmpl fixtures/*/*/*.tmpl
 var EmbedFixtures embed.FS
 
 func TestEmbedFileSystemTemplateLookup(t *testing.T) {
