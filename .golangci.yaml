@@ -12,7 +12,6 @@ linters:
     - dupl
     - errcheck
     - exhaustive
-    - goconst
     - gocritic
     - gocyclo
     - goimports
@@ -35,6 +34,7 @@ linters:
     - whitespace
     - noctx
     - misspell
+    # - goconst
     # - golint
     # - gochecknoinits
     # - funlen
