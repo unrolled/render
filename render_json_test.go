@@ -112,7 +112,7 @@ func TestJSONWithError(t *testing.T) {
 
 func TestJSONWithOutUnEscapeHTML(t *testing.T) {
 	render := New(Options{
-		UnEscapeHTML: false,
+		// UnEscapeHTML: false, // The default value is false.
 	})
 	var err error
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
