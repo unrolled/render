@@ -148,7 +148,7 @@ r := render.New(render.Options{
 ~~~
 
 ### JSON vs Streaming JSON
-By default, Render does **not** stream JSON to the `http.ResponseWriter`. It instead marshalls your object into a byte array, and if no errors occurred, writes that byte array to the `http.ResponseWriter`. If you would like to use the built it in streaming functionality (`json.Encoder`), you can set the `StreamingJSON` setting to `true`. This will stream the output directly to the `http.ResponseWriter`. Also note that streaming is only implemented in `render.JSON` and not `render.JSONP`, and the `UnEscapeHTML` and `Indent` options are ignored when streaming.
+By default, Render does **not** stream JSON to the `http.ResponseWriter`. It instead marshalls your object into a byte array, and if no errors occurred, writes that byte array to the `http.ResponseWriter`. If you would like to use the built it in streaming functionality (`json.Encoder`), you can set the `StreamingJSON` setting to `true`. This will stream the output directly to the `http.ResponseWriter`. Also note that streaming is only implemented in `render.JSON` and not `render.JSONP`.
 
 ### Loading Templates
 By default Render will attempt to load templates with a '.tmpl' extension from the "templates" directory. Templates are found by traversing the templates directory and are named by path and basename. For instance, the following directory structure:
