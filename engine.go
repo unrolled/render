@@ -110,25 +110,17 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 		return j.renderStreamingJSON(w, v)
 	}
 
-	var result []byte
-	var err error
-
+	var buf bytes.Buffer
+	var encoder = json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(!j.UnEscapeHTML)
 	if j.Indent {
-		result, err = json.MarshalIndent(v, "", "  ")
-		result = append(result, '\n')
-	} else {
-		result, err = json.Marshal(v)
+		encoder.SetIndent("", "  ")
 	}
-	if err != nil {
+
+	if err := encoder.Encode(v); err != nil {
 		return err
 	}
-
-	// Unescape HTML if needed.
-	if j.UnEscapeHTML {
-		result = bytes.ReplaceAll(result, []byte("\\u003c"), []byte("<"))
-		result = bytes.ReplaceAll(result, []byte("\\u003e"), []byte(">"))
-		result = bytes.ReplaceAll(result, []byte("\\u0026"), []byte("&"))
-	}
+	output := buf.Bytes()
 
 	// JSON marshaled fine, write out the result.
 	if hw, ok := w.(http.ResponseWriter); ok {
@@ -137,7 +129,13 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 	if len(j.Prefix) > 0 {
 		_, _ = w.Write(j.Prefix)
 	}
-	_, _ = w.Write(result)
+
+	// Remove the newline that json.Encode injects when not indenting the output.
+	if !j.Indent {
+		output = bytes.TrimSuffix(output, []byte("\n"))
+	}
+	_, _ = w.Write(output)
+
 	return nil
 }
 
@@ -149,7 +147,13 @@ func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
 		_, _ = w.Write(j.Prefix)
 	}
 
-	return json.NewEncoder(w).Encode(v)
+	encoder := json.NewEncoder(w)
+	encoder.SetEscapeHTML(!j.UnEscapeHTML)
+	if j.Indent {
+		encoder.SetIndent("", "  ")
+	}
+
+	return encoder.Encode(v)
 }
 
 // Render a JSONP response.

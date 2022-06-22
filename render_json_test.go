@@ -208,6 +208,64 @@ func TestJSONStreamWithError(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), "text/plain; charset=utf-8")
 }
 
+func TestJSONStreamWithOutUnEscapeHTML(t *testing.T) {
+	render := New(Options{
+		// UnEscapeHTML: false, // The default value is false.
+		StreamingJSON: true,
+	})
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Body.String(), `{"one":"\u003cspan\u003etest\u0026test\u003c/span\u003e","two":"\u003cdiv\u003etest\u0026test\u003c/div\u003e"}`+"\n")
+}
+
+func TestJSONStreamWithUnEscapeHTML(t *testing.T) {
+	render := New(Options{
+		UnEscapeHTML:  true,
+		StreamingJSON: true,
+	})
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Body.String(), "{\"one\":\"<span>test&test</span>\",\"two\":\"<div>test&test</div>\"}\n")
+}
+
+func TestJSONStreamIndented(t *testing.T) {
+	render := New(Options{
+		IndentJSON:     true,
+		StreamingJSON:  true,
+		DisableCharset: true,
+	})
+
+	var err error
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), ContentJSON)
+	expect(t, res.Body.String(), "{\n  \"one\": \"hello\",\n  \"two\": \"world\"\n}\n")
+}
+
 func TestJSONCharset(t *testing.T) {
 	render := New(Options{
 		Charset: "foobar",
