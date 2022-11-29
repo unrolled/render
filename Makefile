@@ -1,4 +1,4 @@
-.PHONY: help test
+.PHONY: help test ci
 .DEFAULT_GOAL := help
 
 help: ## Displays this help message.
@@ -6,7 +6,7 @@ help: ## Displays this help message.
 
 test: ## Runs the linter, tests, and vetting.
 	golangci-lint run ./...
-	go test -cover -race -count=1 ./...
+	go test -v -cover -race -count=1 ./...
 	go vet ./...
 
 ci: ## Runs on the tests and vetting for CI.
