@@ -40,7 +40,7 @@ func TestLockConfig(t *testing.T) {
 	expect(t, reflect.TypeOf(r4.lock).Kind(), empty)
 }
 
-/* Benchmarks */
+// Benchmarks.
 func BenchmarkNormalJSON(b *testing.B) {
 	render := New()
 
@@ -49,7 +49,7 @@ func BenchmarkNormalJSON(b *testing.B) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 
 	for i := 0; i < b.N; i++ {
 		h.ServeHTTP(res, req)
@@ -66,7 +66,7 @@ func BenchmarkStreamingJSON(b *testing.B) {
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 
 	for i := 0; i < b.N; i++ {
 		h.ServeHTTP(res, req)
@@ -81,7 +81,7 @@ func BenchmarkHTML(b *testing.B) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
@@ -91,20 +91,26 @@ func BenchmarkHTML(b *testing.B) {
 	})
 }
 
-/* Test Helper */
+// Test Helpers.
 func expect(t *testing.T, a interface{}, b interface{}) {
+	t.Helper()
+
 	if a != b {
 		t.Errorf("Expected ||%#v|| (type %v) - Got ||%#v|| (type %v)", b, reflect.TypeOf(b), a, reflect.TypeOf(a))
 	}
 }
 
 func expectNil(t *testing.T, a interface{}) {
+	t.Helper()
+
 	if a != nil {
 		t.Errorf("Expected ||nil|| - Got ||%#v|| (type %v)", a, reflect.TypeOf(a))
 	}
 }
 
 func expectNotNil(t *testing.T, a interface{}) {
+	t.Helper()
+
 	if a == nil {
 		t.Errorf("Expected ||not nil|| - Got ||nil|| (type %v)", reflect.TypeOf(a))
 	}

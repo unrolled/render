@@ -17,12 +17,13 @@ func TestJSONBasic(t *testing.T) {
 	render := New()
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -38,12 +39,13 @@ func TestJSONPrefix(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -58,12 +60,13 @@ func TestJSONIndented(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -78,12 +81,13 @@ func TestJSONConsumeIndented(t *testing.T) {
 	})
 
 	var renErr error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		renErr = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	var output Greeting
@@ -98,12 +102,13 @@ func TestJSONWithError(t *testing.T) {
 	render := New(Options{}, Options{}, Options{}, Options{})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 299, math.NaN())
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -114,13 +119,15 @@ func TestJSONWithOutUnEscapeHTML(t *testing.T) {
 	render := New(Options{
 		// UnEscapeHTML: false, // The default value is false.
 	})
+
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -131,13 +138,15 @@ func TestJSONWithUnEscapeHTML(t *testing.T) {
 	render := New(Options{
 		UnEscapeHTML: true,
 	})
+
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -148,13 +157,15 @@ func TestJSONStream(t *testing.T) {
 	render := New(Options{
 		StreamingJSON: true,
 	})
+
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -171,12 +182,13 @@ func TestJSONStreamPrefix(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -191,12 +203,13 @@ func TestJSONStreamWithError(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 299, math.NaN())
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -213,13 +226,15 @@ func TestJSONStreamWithOutUnEscapeHTML(t *testing.T) {
 		// UnEscapeHTML: false, // The default value is false.
 		StreamingJSON: true,
 	})
+
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -231,13 +246,15 @@ func TestJSONStreamWithUnEscapeHTML(t *testing.T) {
 		UnEscapeHTML:  true,
 		StreamingJSON: true,
 	})
+
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -252,12 +269,13 @@ func TestJSONStreamIndented(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -272,12 +290,13 @@ func TestJSONCharset(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -292,12 +311,13 @@ func TestJSONCustomContentType(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -312,12 +332,13 @@ func TestJSONDisabledCharset(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

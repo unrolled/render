@@ -12,12 +12,13 @@ func TestDataBinaryBasic(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.Data(w, 299, []byte("hello there"))
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -32,13 +33,14 @@ func TestDataCustomMimeType(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(ContentType, "image/jpeg")
 		err = render.Data(w, http.StatusOK, []byte("..jpeg data.."))
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -53,12 +55,13 @@ func TestDataCustomContentType(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.Data(w, http.StatusOK, []byte("..png data.."))
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

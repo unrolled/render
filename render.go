@@ -153,39 +153,51 @@ func (r *Render) prepareOptions() {
 	if len(r.opt.Charset) == 0 {
 		r.opt.Charset = defaultCharset
 	}
+
 	if !r.opt.DisableCharset {
 		r.compiledCharset = "; charset=" + r.opt.Charset
 	}
+
 	if len(r.opt.Directory) == 0 {
 		r.opt.Directory = "templates"
 	}
+
 	if r.opt.FileSystem == nil {
 		r.opt.FileSystem = &LocalFileSystem{}
 	}
+
 	if len(r.opt.Extensions) == 0 {
 		r.opt.Extensions = []string{".tmpl"}
 	}
+
 	if len(r.opt.BinaryContentType) == 0 {
 		r.opt.BinaryContentType = ContentBinary
 	}
+
 	if len(r.opt.HTMLContentType) == 0 {
 		r.opt.HTMLContentType = ContentHTML
 	}
+
 	if len(r.opt.JSONContentType) == 0 {
 		r.opt.JSONContentType = ContentJSON
 	}
+
 	if len(r.opt.JSONPContentType) == 0 {
 		r.opt.JSONPContentType = ContentJSONP
 	}
+
 	if len(r.opt.TextContentType) == 0 {
 		r.opt.TextContentType = ContentText
 	}
+
 	if len(r.opt.XMLContentType) == 0 {
 		r.opt.XMLContentType = ContentXML
 	}
+
 	if r.opt.BufferPool == nil {
 		r.opt.BufferPool = NewSizedBufferPool(32, 1<<19) // 32 buffers of size 512KiB each
 	}
+
 	if r.opt.IsDevelopment || r.opt.UseMutexLock {
 		r.lock = &sync.RWMutex{}
 	} else {
@@ -208,8 +220,10 @@ func (r *Render) compileTemplatesFromDir() {
 	tmpTemplates.Delims(r.opt.Delims.Left, r.opt.Delims.Right)
 
 	var watcher *fsnotify.Watcher
+
 	if r.opt.IsDevelopment {
 		var err error
+
 		watcher, err = fsnotify.NewWatcher()
 		if err != nil {
 			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v\n", err)
@@ -265,6 +279,7 @@ func (r *Render) compileTemplatesFromDir() {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	r.templates = tmpTemplates
+
 	if r.hasWatcher = watcher != nil; r.hasWatcher {
 		go func() {
 			select {
@@ -320,10 +335,12 @@ func (r *Render) compileTemplatesFromAsset() {
 
 				// Break out if this parsing fails. We don't want any silent server starts.
 				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
+
 				break
 			}
 		}
 	}
+
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	r.templates = tmpTemplates
@@ -335,6 +352,7 @@ func (r *Render) compileTemplatesFromAsset() {
 func (r *Render) TemplateLookup(t string) *template.Template {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
+
 	return r.templates.Lookup(t)
 }
 
@@ -347,6 +365,7 @@ func (r *Render) layoutFuncs(templates *template.Template, name string, binding 
 	return template.FuncMap{
 		"yield": func() (template.HTML, error) {
 			buf, err := r.execute(templates, name, binding)
+
 			// Return safe HTML here since we are rendering our own template.
 			return template.HTML(buf.String()), err
 		},
@@ -414,6 +433,7 @@ func (r *Render) Render(w io.Writer, e Engine, data interface{}) error {
 	if hw, ok := w.(http.ResponseWriter); err != nil && !r.opt.DisableHTTPErrorRendering && ok {
 		http.Error(hw, err.Error(), http.StatusInternalServerError)
 	}
+
 	return err
 }
 
@@ -440,6 +460,7 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 		r.CompileTemplates()
 		r.lock.RLock()
 	}
+
 	templates := r.templates
 	r.lock.RUnlock()
 

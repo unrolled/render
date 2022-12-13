@@ -43,12 +43,13 @@ func TestEmbedFileSystemHTMLBasic(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)

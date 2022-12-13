@@ -1,3 +1,4 @@
+//nolint:nonamedreturns
 package render
 
 import (
@@ -18,7 +19,7 @@ type SizedBufferPool struct {
 // the initial capacity of new buffers to minimize calls to make().
 //
 // The value of alloc should seek to provide a buffer that is representative of
-// most data written to the the buffer (i.e. 95th percentile) without being
+// most data written to the buffer (i.e. 95th percentile) without being
 // overly large (which will increase static memory consumption). You may wish to
 // track the capacity of your last N buffers (i.e. using an []int) prior to
 // returning them to the pool as input into calculating a suitable alloc value.
@@ -39,6 +40,7 @@ func (bp *SizedBufferPool) Get() (b *bytes.Buffer) {
 		// create new buffer
 		b = bytes.NewBuffer(make([]byte, 0, bp.a))
 	}
+
 	return
 }
 
