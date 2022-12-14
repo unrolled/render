@@ -13,15 +13,18 @@ func TestRenderPartial(t *testing.T) {
 	})
 
 	var renErr error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		renErr = render.HTML(w, http.StatusOK, "content", "gophers")
 	})
 
 	res := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	if err != nil {
 		t.Fatalf("couldn't create a request. err = %s", err)
 	}
+
 	h.ServeHTTP(res, req)
 
 	expectNil(t, renErr)
@@ -40,10 +43,12 @@ func TestRenderPartialRequirePartialsOff(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	if err != nil {
 		t.Fatalf("couldn't create a request. err = %s", err)
 	}
+
 	h.ServeHTTP(res, req)
 
 	expect(t, res.Body.String(), "\n<h1>during</h1>\nafter gophers\n")
@@ -61,10 +66,12 @@ func TestRenderPartialRequirePartialsOn(t *testing.T) {
 	})
 
 	res := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	if err != nil {
 		t.Fatalf("couldn't create a request. err = %s", err)
 	}
+
 	h.ServeHTTP(res, req)
 
 	expect(t, res.Body.String(), "template: layout:1:3: executing \"layout\" at <partial \"before\">: error calling partial: html/template: \"before-content-partial\" is undefined\n")

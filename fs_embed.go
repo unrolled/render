@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-// EmbedFileSystem implements FileSystem on top of an embed.FS
+// EmbedFileSystem implements FileSystem on top of an embed.FS.
 type EmbedFileSystem struct {
 	embed.FS
 }
@@ -52,10 +52,11 @@ func (tfs tmplFS) ReadFile(filename string) ([]byte, error) {
 		return nil, err
 	}
 	defer f.Close()
+
 	return io.ReadAll(f)
 }
 
-// FS converts io/fs.FS to FileSystem
-func FS(oriFS fs.FS) FileSystem {
+// FS converts io/fs.FS to FileSystem.
+func FS(oriFS fs.FS) FileSystem { //nolint:ireturn
 	return tmplFS{oriFS}
 }

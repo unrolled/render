@@ -19,12 +19,13 @@ func TestXMLBasic(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.XML(w, 299, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -40,12 +41,13 @@ func TestXMLPrefix(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.XML(w, 300, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -60,12 +62,13 @@ func TestXMLIndented(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -80,12 +83,13 @@ func TestXMLWithError(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.XML(w, 299, map[string]string{"foo": "bar"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNotNil(t, err)
@@ -98,12 +102,13 @@ func TestXMLCustomContentType(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
@@ -118,12 +123,13 @@ func TestXMLDisabledCharset(t *testing.T) {
 	})
 
 	var err error
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
 	res := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 	h.ServeHTTP(res, req)
 
 	expectNil(t, err)
