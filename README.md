@@ -101,6 +101,7 @@ r := render.New(render.Options{
     UseMutexLock: true, // Overrides the default no lock implementation and uses the standard `sync.RWMutex` lock.
     UnEscapeHTML: true, // Replace ensure '&<>' are output correctly (JSON only).
     StreamingJSON: true, // Streams the JSON response via json.Encoder.
+    HTMLTemplateOption: "missingkey=error", // Sets the option value for HTML templates. See https://pkg.go.dev/html/template#Template.Option for a list of known options.
     RequirePartials: true, // Return an error if a template is missing a partial used in a layout.
     DisableHTTPErrorRendering: true, // Disables automatic rendering of http.StatusInternalServerError when an error occurs.
 })
@@ -139,6 +140,7 @@ r := render.New(render.Options{
     IsDevelopment: false,
     UseMutexLock: false,
     UnEscapeHTML: false,
+    HTMLTemplateOption: "",
     StreamingJSON: false,
     RequirePartials: false,
     DisableHTTPErrorRendering: false,

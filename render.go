@@ -97,6 +97,8 @@ type Options struct {
 	UseMutexLock bool
 	// Unescape HTML characters "&<>" to their original values. Default is false.
 	UnEscapeHTML bool
+	// Sets the `Option` value for HTML templates. Defaults to blank ("").
+	HTMLTemplateOption string
 	// Streams JSON responses instead of marshalling prior to sending. Default is false.
 	StreamingJSON bool
 	// Require that all partials executed in the layout are implemented in all templates using the layout. Default is false.
@@ -217,6 +219,11 @@ func (r *Render) CompileTemplates() {
 func (r *Render) compileTemplatesFromDir() {
 	dir := r.opt.Directory
 	tmpTemplates := template.New(dir)
+
+	if len(r.opt.HTMLTemplateOption) > 0 {
+		tmpTemplates.Option(r.opt.HTMLTemplateOption)
+	}
+
 	tmpTemplates.Delims(r.opt.Delims.Left, r.opt.Delims.Right)
 
 	var watcher *fsnotify.Watcher
@@ -301,6 +308,11 @@ func (r *Render) compileTemplatesFromDir() {
 func (r *Render) compileTemplatesFromAsset() {
 	dir := r.opt.Directory
 	tmpTemplates := template.New(dir)
+
+	if len(r.opt.HTMLTemplateOption) > 0 {
+		tmpTemplates.Option(r.opt.HTMLTemplateOption)
+	}
+
 	tmpTemplates.Delims(r.opt.Delims.Left, r.opt.Delims.Right)
 
 	for _, path := range r.opt.AssetNames() {

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -427,4 +428,76 @@ func TestHTMLDisabledCharset(t *testing.T) {
 	expect(t, res.Code, http.StatusOK)
 	expect(t, res.Header().Get(ContentType), ContentHTML)
 	expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
+}
+
+func TestHTMLTemplateOptionDefault(t *testing.T) {
+	render := New(Options{
+		Directory: "testdata/basic",
+	})
+
+	var err error
+
+	// Template expects "world" key.
+	templateData := map[string]int{"missing-key-here": 100}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.HTML(w, http.StatusOK, "map", templateData)
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, 200)
+	expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
+	expect(t, res.Body.String(), "<h1>Hello </h1>\n")
+}
+
+func TestHTMLTemplateOptionZero(t *testing.T) {
+	render := New(Options{
+		Directory:          "testdata/basic",
+		HTMLTemplateOption: "missingkey=zero",
+	})
+
+	var err error
+
+	// Template expects "world" key.
+	templateData := map[string]int{"missing-key-here": 100}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.HTML(w, http.StatusOK, "map", templateData)
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, 200)
+	expect(t, res.Header().Get(ContentType), ContentHTML+"; charset=UTF-8")
+	expect(t, res.Body.String(), "<h1>Hello 0</h1>\n")
+}
+
+func TestHTMLTemplateOptionError(t *testing.T) {
+	render := New(Options{
+		Directory:          "testdata/basic",
+		HTMLTemplateOption: "missingkey=error",
+	})
+
+	var err error
+
+	// Template expects "world" key.
+	templateData := map[string]string{"missing-key-here": "gophers"}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.HTML(w, http.StatusOK, "map", templateData)
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNotNil(t, err)
+	expect(t, strings.Contains(err.Error(), "map has no entry for key"), true)
 }
