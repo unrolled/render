@@ -36,6 +36,10 @@ const (
 	ContentXML = "text/xml"
 	// Default character encoding.
 	defaultCharset = "UTF-8"
+	// Buffer pool size.
+	bufferPoolSize = 32
+	// Buffer pool capacity.
+	bufferPoolCapacity = 1 << 19
 )
 
 // helperFuncs had to be moved out. See helpers.go|helpers_pre16.go files.
@@ -197,7 +201,7 @@ func (r *Render) prepareOptions() {
 	}
 
 	if r.opt.BufferPool == nil {
-		r.opt.BufferPool = NewSizedBufferPool(32, 1<<19) // 32 buffers of size 512KiB each
+		r.opt.BufferPool = NewSizedBufferPool(bufferPoolSize, bufferPoolCapacity)
 	}
 
 	if r.opt.IsDevelopment || r.opt.UseMutexLock {
@@ -210,6 +214,7 @@ func (r *Render) prepareOptions() {
 func (r *Render) CompileTemplates() {
 	if r.opt.Asset == nil || r.opt.AssetNames == nil {
 		r.compileTemplatesFromDir()
+
 		return
 	}
 
@@ -276,10 +281,12 @@ func (r *Render) compileTemplatesFromDir() {
 				}
 
 				// Break out if this parsing fails. We don't want any silent server starts.
-				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
+				template.Must(tmpl.Funcs(helperFuncs()).Parse(string(buf)))
+
 				break
 			}
 		}
+
 		return nil
 	})
 
@@ -346,7 +353,7 @@ func (r *Render) compileTemplatesFromAsset() {
 				}
 
 				// Break out if this parsing fails. We don't want any silent server starts.
-				template.Must(tmpl.Funcs(helperFuncs).Parse(string(buf)))
+				template.Must(tmpl.Funcs(helperFuncs()).Parse(string(buf)))
 
 				break
 			}
@@ -370,6 +377,7 @@ func (r *Render) TemplateLookup(t string) *template.Template {
 
 func (r *Render) execute(templates *template.Template, name string, binding interface{}) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
+
 	return buf, templates.ExecuteTemplate(buf, name, binding)
 }
 
@@ -395,6 +403,7 @@ func (r *Render) layoutFuncs(templates *template.Template, name string, binding 
 				// Return safe HTML here since we are rendering our own template.
 				return template.HTML(buf.String()), err
 			}
+
 			return "", nil
 		},
 		"partial": func(partialName string) (template.HTML, error) {
@@ -407,6 +416,7 @@ func (r *Render) layoutFuncs(templates *template.Template, name string, binding 
 				// Return safe HTML here since we are rendering our own template.
 				return template.HTML(buf.String()), err
 			}
+
 			return "", nil
 		},
 	}

@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+//nolint:gochecknoglobals
 var ctx = context.Background()
 
 func TestLockConfig(t *testing.T) {
