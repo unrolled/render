@@ -41,7 +41,9 @@ func (tfs tmplFS) Walk(root string, walkFn filepath.WalkFunc) error {
 		if err != nil {
 			return err
 		}
+
 		info, err := d.Info()
+
 		return walkFn(path, info, err)
 	})
 }

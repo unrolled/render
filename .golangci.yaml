@@ -3,7 +3,7 @@ issues:
     - G203
 
 run:
-  timeout: 10m
+  timeout: 5m
 
 linters:
   enable-all: true
@@ -33,12 +33,9 @@ linters:
     - nestif
     - funlen
     - goconst
-    - nlreturn
-    - gochecknoglobals
     - cyclop
     - gocyclo
     - gocognit
     - maintidx
-    - contextcheck
     - wrapcheck
-    - gomnd
+    - depguard
