@@ -34,7 +34,7 @@ type HTML struct {
 	bp GenericBufferPool
 }
 
-// JSONEncoder match encoding/json.Encoder capabilities.
+// JSONEncoder is the interface for encoding/json.Encoder.
 type JSONEncoder interface {
 	Encode(v interface{}) error
 	SetEscapeHTML(on bool)
@@ -48,7 +48,7 @@ type JSON struct {
 	UnEscapeHTML  bool
 	Prefix        []byte
 	StreamingJSON bool
-	NewEncoder    func(w io.Writer) JSONEncoder
+	Encoder       func(w io.Writer) JSONEncoder
 }
 
 // JSONP built-in renderer.
@@ -122,7 +122,7 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 	}
 
 	var buf bytes.Buffer
-	encoder := j.NewEncoder(&buf)
+	encoder := j.Encoder(&buf)
 	encoder.SetEscapeHTML(!j.UnEscapeHTML)
 
 	if j.Indent {
@@ -163,7 +163,7 @@ func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
 		_, _ = w.Write(j.Prefix)
 	}
 
-	encoder := j.NewEncoder(w)
+	encoder := j.Encoder(w)
 	encoder.SetEscapeHTML(!j.UnEscapeHTML)
 
 	if j.Indent {

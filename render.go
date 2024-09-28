@@ -118,7 +118,7 @@ type Options struct {
 	// BufferPool to use when rendering HTML templates. If none is supplied
 	// defaults to SizedBufferPool of size 32 with 512KiB buffers.
 	BufferPool GenericBufferPool
-	// Custom JSON Encoder. Default to encoding/json.NewEncoder.
+	// Custom JSON Encoder. Defaults to encoding/json.NewEncoder.
 	JSONEncoder func(w io.Writer) JSONEncoder
 }
 
@@ -535,7 +535,7 @@ func (r *Render) JSON(w io.Writer, status int, v interface{}) error {
 		Prefix:        r.opt.PrefixJSON,
 		UnEscapeHTML:  r.opt.UnEscapeHTML,
 		StreamingJSON: r.opt.StreamingJSON,
-		NewEncoder:    r.opt.JSONEncoder,
+		Encoder:       r.opt.JSONEncoder,
 	}
 
 	return r.Render(w, j, v)
