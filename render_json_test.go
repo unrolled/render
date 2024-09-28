@@ -2,6 +2,7 @@ package render
 
 import (
 	"encoding/json"
+	"io"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,28 @@ import (
 type Greeting struct {
 	One string `json:"one"`
 	Two string `json:"two"`
+}
+
+type TestEncoder struct {
+	JSONEncoder
+	w io.Writer
+}
+
+func (e TestEncoder) NewEncoder(w io.Writer) JSONEncoder {
+	return TestEncoder{w: w}
+}
+
+func (e TestEncoder) Encode(v interface{}) error {
+	e.w.Write([]byte(e.String()))
+	return nil
+}
+
+func (e TestEncoder) SetEscapeHTML(on bool) {}
+
+func (e TestEncoder) SetIndent(prefix, indent string) {}
+
+func (e TestEncoder) String() string {
+	return "{\"one\":\"world\",\"two\":\"hello\"}"
 }
 
 func TestJSONBasic(t *testing.T) {
@@ -345,4 +368,47 @@ func TestJSONDisabledCharset(t *testing.T) {
 	expect(t, res.Code, http.StatusOK)
 	expect(t, res.Header().Get(ContentType), ContentJSON)
 	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
+}
+
+func TestJSONEncoder(t *testing.T) {
+	render := New(Options{
+		JSONEncoder: TestEncoder{}.NewEncoder,
+	})
+
+	var err error
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, 299, Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, 299)
+	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
+	expect(t, res.Body.String(), TestEncoder{}.String())
+}
+
+func TestJSONEncoderStream(t *testing.T) {
+	render := New(Options{
+		JSONEncoder:   TestEncoder{}.NewEncoder,
+		StreamingJSON: true,
+	})
+
+	var err error
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err = render.JSON(w, 299, Greeting{"hello", "world"})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, 299)
+	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
+	expect(t, res.Body.String(), TestEncoder{}.String())
 }

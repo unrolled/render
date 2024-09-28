@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -117,6 +118,8 @@ type Options struct {
 	// BufferPool to use when rendering HTML templates. If none is supplied
 	// defaults to SizedBufferPool of size 32 with 512KiB buffers.
 	BufferPool GenericBufferPool
+	// Custom JSON Encoder. Default to encoding/json.NewEncoder.
+	JSONEncoder func(w io.Writer) JSONEncoder
 }
 
 // HTMLOptions is a struct for overriding some rendering Options for specific HTML call.
@@ -208,6 +211,12 @@ func (r *Render) prepareOptions() {
 		r.lock = &sync.RWMutex{}
 	} else {
 		r.lock = &emptyLock{}
+	}
+
+	if r.opt.JSONEncoder == nil {
+		r.opt.JSONEncoder = func(w io.Writer) JSONEncoder {
+			return json.NewEncoder(w)
+		}
 	}
 }
 
@@ -526,6 +535,7 @@ func (r *Render) JSON(w io.Writer, status int, v interface{}) error {
 		Prefix:        r.opt.PrefixJSON,
 		UnEscapeHTML:  r.opt.UnEscapeHTML,
 		StreamingJSON: r.opt.StreamingJSON,
+		NewEncoder:    r.opt.JSONEncoder,
 	}
 
 	return r.Render(w, j, v)

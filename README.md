@@ -104,6 +104,9 @@ r := render.New(render.Options{
     HTMLTemplateOption: "missingkey=error", // Sets the option value for HTML templates. See https://pkg.go.dev/html/template#Template.Option for a list of known options.
     RequirePartials: true, // Return an error if a template is missing a partial used in a layout.
     DisableHTTPErrorRendering: true, // Disables automatic rendering of http.StatusInternalServerError when an error occurs.
+    JSONEncoder: func(w io.Writer) render.JSONEncoder { // Use jsoniter "github.com/json-iterator"
+        return jsoniter.NewEncoder(w)
+    },
 })
 // ...
 ~~~
@@ -146,6 +149,7 @@ r := render.New(render.Options{
     DisableHTTPErrorRendering: false,
     RenderPartialsWithoutPrefix: false,
     BufferPool: GenericBufferPool,
+    JSONEncoder: nil,
 })
 ~~~
 
