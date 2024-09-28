@@ -17,7 +17,7 @@ func TestJSONPBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSONP(w, 299, "helloCallback", GreetingP{"hello", "world"})
 	})
 
@@ -38,7 +38,7 @@ func TestJSONPRenderIndented(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSONP(w, http.StatusOK, "helloCallback", GreetingP{"hello", "world"})
 	})
 
@@ -57,7 +57,7 @@ func TestJSONPWithError(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSONP(w, 299, "helloCallback", math.NaN())
 	})
 
@@ -76,7 +76,7 @@ func TestJSONPCustomContentType(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSONP(w, http.StatusOK, "helloCallback", GreetingP{"hello", "world"})
 	})
 
@@ -97,7 +97,7 @@ func TestJSONPDisabledCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSONP(w, http.StatusOK, "helloCallback", GreetingP{"hello", "world"})
 	})
 

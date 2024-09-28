@@ -14,7 +14,7 @@ func TestRenderPartial(t *testing.T) {
 
 	var renErr error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		renErr = render.HTML(w, http.StatusOK, "content", "gophers")
 	})
 
@@ -38,7 +38,7 @@ func TestRenderPartialRequirePartialsOff(t *testing.T) {
 		RequirePartials: false,
 	})
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_ = render.HTML(w, http.StatusOK, "content-partial", "gophers")
 	})
 
@@ -61,7 +61,7 @@ func TestRenderPartialRequirePartialsOn(t *testing.T) {
 		RequirePartials: true,
 	})
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_ = render.HTML(w, http.StatusOK, "content-partial", "gophers")
 	})
 

@@ -20,7 +20,7 @@ func TestXMLBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.XML(w, 299, GreetingXML{One: "hello", Two: "world"})
 	})
 
@@ -42,7 +42,7 @@ func TestXMLPrefix(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.XML(w, 300, GreetingXML{One: "hello", Two: "world"})
 	})
 
@@ -63,7 +63,7 @@ func TestXMLIndented(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
@@ -84,7 +84,7 @@ func TestXMLWithError(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.XML(w, 299, map[string]string{"foo": "bar"})
 	})
 
@@ -103,7 +103,7 @@ func TestXMLCustomContentType(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
@@ -124,7 +124,7 @@ func TestXMLDisabledCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"})
 	})
 
