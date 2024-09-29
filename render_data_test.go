@@ -13,7 +13,7 @@ func TestDataBinaryBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.Data(w, 299, []byte("hello there"))
 	})
 
@@ -34,7 +34,7 @@ func TestDataCustomMimeType(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set(ContentType, "image/jpeg")
 		err = render.Data(w, http.StatusOK, []byte("..jpeg data.."))
 	})
@@ -56,7 +56,7 @@ func TestDataCustomContentType(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.Data(w, http.StatusOK, []byte("..png data.."))
 	})
 

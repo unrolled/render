@@ -17,7 +17,7 @@ func TestHTMLBad(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "nope", nil)
 	})
 
@@ -38,7 +38,7 @@ func TestHTMLBadDisableHTTPErrorRendering(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "nope", nil)
 	})
 
@@ -58,7 +58,7 @@ func TestHTMLBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
@@ -112,7 +112,7 @@ func TestHTMLXHTML(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
@@ -134,7 +134,7 @@ func TestHTMLExtensions(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hypertext", nil)
 	})
 
@@ -160,7 +160,7 @@ func TestHTMLFuncs(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "index", "gophers")
 	})
 
@@ -180,7 +180,7 @@ func TestRenderLayout(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "content", "gophers")
 	})
 
@@ -200,7 +200,7 @@ func TestHTMLLayoutCurrent(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "content", "gophers")
 	})
 
@@ -219,7 +219,7 @@ func TestHTMLNested(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "admin/index", "gophers")
 	})
 
@@ -240,7 +240,7 @@ func TestHTMLBadPath(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
@@ -260,7 +260,7 @@ func TestHTMLDelimiters(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "delims", "gophers")
 	})
 
@@ -281,7 +281,7 @@ func TestHTMLDefaultCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
@@ -306,7 +306,7 @@ func TestHTMLOverrideLayout(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "content", "gophers", HTMLOptions{
 			Layout: "another_layout",
 		})
@@ -328,7 +328,7 @@ func TestHTMLNoRace(t *testing.T) {
 		Directory: "testdata/basic",
 	})
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err := render.HTML(w, http.StatusOK, "hello", "gophers")
 		expectNil(t, err)
 	})
@@ -373,7 +373,7 @@ func TestHTMLLoadFromAssets(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "test", "gophers", HTMLOptions{
 			Layout: "layout",
 		})
@@ -416,7 +416,7 @@ func TestHTMLDisabledCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
@@ -440,7 +440,7 @@ func TestHTMLTemplateOptionDefault(t *testing.T) {
 	// Template expects "world" key.
 	templateData := map[string]int{"missing-key-here": 100}
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "map", templateData)
 	})
 
@@ -465,7 +465,7 @@ func TestHTMLTemplateOptionZero(t *testing.T) {
 	// Template expects "world" key.
 	templateData := map[string]int{"missing-key-here": 100}
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "map", templateData)
 	})
 
@@ -490,7 +490,7 @@ func TestHTMLTemplateOptionError(t *testing.T) {
 	// Template expects "world" key.
 	templateData := map[string]string{"missing-key-here": "gophers"}
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "map", templateData)
 	})
 

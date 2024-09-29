@@ -67,13 +67,15 @@ type Options struct {
 	Layout string
 	// Extensions to parse template files from. Defaults to [".tmpl"].
 	Extensions []string
-	// Funcs is a slice of FuncMaps to apply to the template upon compilation. This is useful for helper functions. Defaults to empty map.
+	// Funcs is a slice of FuncMaps to apply to the template upon compilation.
+	// This is useful for helper functions. Defaults to empty map.
 	Funcs []template.FuncMap
 	// Delims sets the action delimiters to the specified strings in the Delims struct.
 	Delims Delims
 	// Appends the given character set to the Content-Type header. Default is "UTF-8".
 	Charset string
-	// If DisableCharset is set to true, it will not append the above Charset value to the Content-Type header. Default is false.
+	// If DisableCharset is set to true, it will not append the above Charset value to the Content-Type header.
+	// Default is false.
 	DisableCharset bool
 	// Outputs human readable JSON.
 	IndentJSON bool
@@ -97,8 +99,9 @@ type Options struct {
 	XMLContentType string
 	// If IsDevelopment is set to true, this will recompile the templates on every request. Default is false.
 	IsDevelopment bool
-	// If UseMutexLock is set to true, the standard `sync.RWMutex` lock will be used instead of the lock free implementation. Default is false.
-	// Note that when `IsDevelopment` is true, the standard `sync.RWMutex` lock is always used. Lock free is only a production feature.
+	// If UseMutexLock is set to true, the standard `sync.RWMutex` lock will be used instead of the lock free
+	// implementation. Default is false. Note that when `IsDevelopment` is true, the standard `sync.RWMutex`
+	// lock is always used. Lock free is only a production feature.
 	UseMutexLock bool
 	// Unescape HTML characters "&<>" to their original values. Default is false.
 	UnEscapeHTML bool
@@ -106,14 +109,17 @@ type Options struct {
 	HTMLTemplateOption string
 	// Streams JSON responses instead of marshalling prior to sending. Default is false.
 	StreamingJSON bool
-	// Require that all partials executed in the layout are implemented in all templates using the layout. Default is false.
+	// Require that all partials executed in the layout are implemented in all templates using the layout.
+	// Default is false.
 	RequirePartials bool
 	// Deprecated: Use the above `RequirePartials` instead of this. As of Go 1.6, blocks are built in. Default is false.
 	RequireBlocks bool
 	// Disables automatic rendering of http.StatusInternalServerError when an error occurs. Default is false.
 	DisableHTTPErrorRendering bool
-	// Enables using partials without the current filename suffix which allows use of the same template in multiple files. e.g {{ partial "carosuel" }} inside the home template will match carosel-home or carosel.
-	// ***NOTE*** - This option should be named RenderPartialsWithoutSuffix as that is what it does. "Prefix" is a typo. Maintaining the existing name for backwards compatibility.
+	// Enables using partials without the current filename suffix which allows use of the same template in
+	// multiple files. e.g {{ partial "carousel" }} inside the home template will match carousel-home or carousel.
+	// ***NOTE*** - This option should be named RenderPartialsWithoutSuffix as that is what it does.
+	// "Prefix" is a typo. Maintaining the existing name for backwards compatibility.
 	RenderPartialsWithoutPrefix bool
 	// BufferPool to use when rendering HTML templates. If none is supplied
 	// defaults to SizedBufferPool of size 32 with 512KiB buffers.
@@ -247,7 +253,8 @@ func (r *Render) compileTemplatesFromDir() {
 
 		watcher, err = fsnotify.NewWatcher()
 		if err != nil {
-			log.Printf("Unable to create new watcher for template files. Templates will be recompiled on every render. Error: %v\n", err)
+			log.Printf("Unable to create new watcher for template files. "+
+				"Templates will be recompiled on every render. Error: %v\n", err)
 		}
 	}
 
@@ -260,6 +267,7 @@ func (r *Render) compileTemplatesFromDir() {
 		if info != nil && watcher != nil {
 			_ = watcher.Add(path)
 		}
+
 		if info == nil || info.IsDir() {
 			return nil
 		}

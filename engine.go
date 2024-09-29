@@ -11,7 +11,7 @@ import (
 
 // Engine is the generic interface for all responses.
 type Engine interface {
-	Render(io.Writer, interface{}) error
+	Render(w io.Writer, v interface{}) error
 }
 
 // Head defines the basic ContentType and Status fields.

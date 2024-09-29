@@ -99,7 +99,7 @@ r := render.New(render.Options{
     HTMLContentType: "application/xhtml+xml", // Output XHTML content type instead of default "text/html".
     IsDevelopment: true, // Render will now recompile the templates on every HTML response.
     UseMutexLock: true, // Overrides the default no lock implementation and uses the standard `sync.RWMutex` lock.
-    UnEscapeHTML: true, // Replace ensure '&<>' are output correctly (JSON only).
+    UnEscapeHTML: true, // Ensure '&<>' are output correctly (JSON only).
     StreamingJSON: true, // Streams the JSON response via json.Encoder.
     HTMLTemplateOption: "missingkey=error", // Sets the option value for HTML templates. See https://pkg.go.dev/html/template#Template.Option for a list of known options.
     RequirePartials: true, // Return an error if a template is missing a partial used in a layout.

@@ -15,22 +15,18 @@ type Greeting struct {
 }
 
 type TestEncoder struct {
-	JSONEncoder
 	w io.Writer
 }
 
-func (e TestEncoder) NewEncoder(w io.Writer) JSONEncoder {
-	return TestEncoder{w: w}
-}
+func (e TestEncoder) Encode(_ interface{}) error {
+	_, _ = e.w.Write([]byte(e.String()))
 
-func (e TestEncoder) Encode(v interface{}) error {
-	e.w.Write([]byte(e.String()))
 	return nil
 }
 
-func (e TestEncoder) SetEscapeHTML(on bool) {}
+func (e TestEncoder) SetEscapeHTML(_ bool) {}
 
-func (e TestEncoder) SetIndent(prefix, indent string) {}
+func (e TestEncoder) SetIndent(_, _ string) {}
 
 func (e TestEncoder) String() string {
 	return "{\"one\":\"world\",\"two\":\"hello\"}"
@@ -41,7 +37,7 @@ func TestJSONBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
@@ -63,7 +59,7 @@ func TestJSONPrefix(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
@@ -84,7 +80,7 @@ func TestJSONIndented(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
@@ -105,7 +101,7 @@ func TestJSONConsumeIndented(t *testing.T) {
 
 	var renErr error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		renErr = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
@@ -126,7 +122,7 @@ func TestJSONWithError(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 299, math.NaN())
 	})
 
@@ -145,7 +141,7 @@ func TestJSONWithOutUnEscapeHTML(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
@@ -164,7 +160,7 @@ func TestJSONWithUnEscapeHTML(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
@@ -183,7 +179,7 @@ func TestJSONStream(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
@@ -206,7 +202,7 @@ func TestJSONStreamPrefix(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
@@ -227,7 +223,7 @@ func TestJSONStreamWithError(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 299, math.NaN())
 	})
 
@@ -252,7 +248,7 @@ func TestJSONStreamWithOutUnEscapeHTML(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
@@ -272,7 +268,7 @@ func TestJSONStreamWithUnEscapeHTML(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"<span>test&test</span>", "<div>test&test</div>"})
 	})
 
@@ -293,7 +289,7 @@ func TestJSONStreamIndented(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
@@ -314,7 +310,7 @@ func TestJSONCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 300, Greeting{"hello", "world"})
 	})
 
@@ -335,7 +331,7 @@ func TestJSONCustomContentType(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
@@ -356,7 +352,7 @@ func TestJSONDisabledCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"})
 	})
 
@@ -372,12 +368,14 @@ func TestJSONDisabledCharset(t *testing.T) {
 
 func TestJSONEncoder(t *testing.T) {
 	render := New(Options{
-		JSONEncoder: TestEncoder{}.NewEncoder,
+		JSONEncoder: func(w io.Writer) JSONEncoder {
+			return TestEncoder{w: w}
+		},
 	})
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 
@@ -393,13 +391,15 @@ func TestJSONEncoder(t *testing.T) {
 
 func TestJSONEncoderStream(t *testing.T) {
 	render := New(Options{
-		JSONEncoder:   TestEncoder{}.NewEncoder,
+		JSONEncoder: func(w io.Writer) JSONEncoder {
+			return TestEncoder{w: w}
+		},
 		StreamingJSON: true,
 	})
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.JSON(w, 299, Greeting{"hello", "world"})
 	})
 

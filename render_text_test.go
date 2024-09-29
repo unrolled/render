@@ -13,7 +13,7 @@ func TestTextBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.Text(w, 299, "Hello Text!")
 	})
 
@@ -34,7 +34,7 @@ func TestTextCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.Text(w, 299, "Hello Text!")
 	})
 
@@ -55,7 +55,7 @@ func TestTextSuppliedCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set(ContentType, "text/css")
 		err = render.Text(w, 200, "html{color:red}")
 	})
@@ -77,7 +77,7 @@ func TestTextCustomContentType(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.Text(w, http.StatusOK, "Hello Text!")
 	})
 
@@ -98,7 +98,7 @@ func TestTextDisabledCharset(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.Text(w, http.StatusOK, "Hello Text!")
 	})
 

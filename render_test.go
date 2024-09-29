@@ -45,7 +45,7 @@ func TestLockConfig(t *testing.T) {
 func BenchmarkNormalJSON(b *testing.B) {
 	render := New()
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_ = render.JSON(w, 200, Greeting{"hello", "world"})
 	})
 
@@ -62,7 +62,7 @@ func BenchmarkStreamingJSON(b *testing.B) {
 		StreamingJSON: true,
 	})
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_ = render.JSON(w, 200, Greeting{"hello", "world"})
 	})
 
@@ -79,7 +79,7 @@ func BenchmarkHTML(b *testing.B) {
 		Directory: "testdata/basic",
 	})
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_ = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)

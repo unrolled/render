@@ -44,7 +44,7 @@ func TestEmbedFileSystemHTMLBasic(t *testing.T) {
 
 	var err error
 
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		err = render.HTML(w, http.StatusOK, "hello", "gophers")
 	})
 
