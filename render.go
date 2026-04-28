@@ -134,6 +134,15 @@ type HTMLOptions struct {
 	Layout string
 	// Funcs added to Options.Funcs.
 	Funcs template.FuncMap
+	// ContentType overrides Options.HTMLContentType for this call only. Charset is not appended.
+	ContentType string
+}
+
+// CallOptions is a struct for overriding rendering Options on a per-call basis.
+type CallOptions struct {
+	// ContentType overrides the instance-level content type for this call only.
+	// Charset is not appended.
+	ContentType string
 }
 
 // Render is a service that provides functions for easily writing JSON, XML,
@@ -443,6 +452,8 @@ func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
 	layout := r.opt.Layout
 	funcs := template.FuncMap{}
 
+	var contentType string
+
 	for _, tmp := range r.opt.Funcs {
 		for k, v := range tmp {
 			funcs[k] = v
@@ -458,11 +469,14 @@ func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
 		for k, v := range opt.Funcs {
 			funcs[k] = v
 		}
+
+		contentType = opt.ContentType
 	}
 
 	return HTMLOptions{
-		Layout: layout,
-		Funcs:  funcs,
+		Layout:      layout,
+		Funcs:       funcs,
+		ContentType: contentType,
 	}
 }
 
@@ -476,10 +490,19 @@ func (r *Render) Render(w io.Writer, e Engine, data interface{}) error {
 	return err
 }
 
+// resolveContentType returns the override ContentType if one was provided, otherwise the default.
+func resolveContentType(defaultCT string, opts []CallOptions) string {
+	if len(opts) > 0 && opts[0].ContentType != "" {
+		return opts[0].ContentType
+	}
+
+	return defaultCT
+}
+
 // Data writes out the raw bytes as binary data.
-func (r *Render) Data(w io.Writer, status int, v []byte) error {
+func (r *Render) Data(w io.Writer, status int, v []byte, opts ...CallOptions) error {
 	head := Head{
-		ContentType: r.opt.BinaryContentType,
+		ContentType: resolveContentType(r.opt.BinaryContentType, opts),
 		Status:      status,
 	}
 
@@ -515,8 +538,13 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 		}
 	}
 
+	ct := r.opt.HTMLContentType + r.compiledCharset
+	if opt.ContentType != "" {
+		ct = opt.ContentType
+	}
+
 	head := Head{
-		ContentType: r.opt.HTMLContentType + r.compiledCharset,
+		ContentType: ct,
 		Status:      status,
 	}
 
@@ -531,9 +559,9 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 }
 
 // JSON marshals the given interface object and writes the JSON response.
-func (r *Render) JSON(w io.Writer, status int, v interface{}) error {
+func (r *Render) JSON(w io.Writer, status int, v interface{}, opts ...CallOptions) error {
 	head := Head{
-		ContentType: r.opt.JSONContentType + r.compiledCharset,
+		ContentType: resolveContentType(r.opt.JSONContentType+r.compiledCharset, opts),
 		Status:      status,
 	}
 
@@ -550,9 +578,9 @@ func (r *Render) JSON(w io.Writer, status int, v interface{}) error {
 }
 
 // JSONP marshals the given interface object and writes the JSON response.
-func (r *Render) JSONP(w io.Writer, status int, callback string, v interface{}) error {
+func (r *Render) JSONP(w io.Writer, status int, callback string, v interface{}, opts ...CallOptions) error {
 	head := Head{
-		ContentType: r.opt.JSONPContentType + r.compiledCharset,
+		ContentType: resolveContentType(r.opt.JSONPContentType+r.compiledCharset, opts),
 		Status:      status,
 	}
 
@@ -566,9 +594,9 @@ func (r *Render) JSONP(w io.Writer, status int, callback string, v interface{}) 
 }
 
 // Text writes out a string as plain text.
-func (r *Render) Text(w io.Writer, status int, v string) error {
+func (r *Render) Text(w io.Writer, status int, v string, opts ...CallOptions) error {
 	head := Head{
-		ContentType: r.opt.TextContentType + r.compiledCharset,
+		ContentType: resolveContentType(r.opt.TextContentType+r.compiledCharset, opts),
 		Status:      status,
 	}
 
@@ -580,9 +608,9 @@ func (r *Render) Text(w io.Writer, status int, v string) error {
 }
 
 // XML marshals the given interface object and writes the XML response.
-func (r *Render) XML(w io.Writer, status int, v interface{}) error {
+func (r *Render) XML(w io.Writer, status int, v interface{}, opts ...CallOptions) error {
 	head := Head{
-		ContentType: r.opt.XMLContentType + r.compiledCharset,
+		ContentType: resolveContentType(r.opt.XMLContentType+r.compiledCharset, opts),
 		Status:      status,
 	}
 

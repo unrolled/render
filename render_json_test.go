@@ -412,3 +412,24 @@ func TestJSONEncoderStream(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), ContentJSON+"; charset=UTF-8")
 	expect(t, res.Body.String(), TestEncoder{}.String())
 }
+
+func TestJSONPerCallContentType(t *testing.T) {
+	render := New()
+
+	var err error
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		err = render.JSON(w, http.StatusOK, Greeting{"hello", "world"}, CallOptions{
+			ContentType: "application/vnd.api+json",
+		})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/vnd.api+json")
+	expect(t, res.Body.String(), "{\"one\":\"hello\",\"two\":\"world\"}")
+}
