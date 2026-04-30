@@ -69,3 +69,24 @@ func TestDataCustomContentType(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), "image/png")
 	expect(t, res.Body.String(), "..png data..")
 }
+
+func TestDataPerCallContentType(t *testing.T) {
+	render := New()
+
+	var err error
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		err = render.Data(w, http.StatusOK, []byte("..jpeg data.."), CallOptions{
+			ContentType: "image/jpeg",
+		})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "image/jpeg")
+	expect(t, res.Body.String(), "..jpeg data..")
+}

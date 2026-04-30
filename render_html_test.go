@@ -501,3 +501,26 @@ func TestHTMLTemplateOptionError(t *testing.T) {
 	expectNotNil(t, err)
 	expect(t, strings.Contains(err.Error(), "map has no entry for key"), true)
 }
+
+func TestHTMLPerCallContentType(t *testing.T) {
+	render := New(Options{
+		Directory: "testdata/basic",
+	})
+
+	var err error
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		err = render.HTML(w, http.StatusOK, "hello", "gophers", HTMLOptions{
+			ContentType: "application/xhtml+xml",
+		})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/xhtml+xml")
+	expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
+}

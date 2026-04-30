@@ -137,3 +137,24 @@ func TestXMLDisabledCharset(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), ContentXML)
 	expect(t, res.Body.String(), "<greeting one=\"hello\" two=\"world\"></greeting>")
 }
+
+func TestXMLPerCallContentType(t *testing.T) {
+	render := New()
+
+	var err error
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		err = render.XML(w, http.StatusOK, GreetingXML{One: "hello", Two: "world"}, CallOptions{
+			ContentType: "application/vnd.api+xml",
+		})
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
+	h.ServeHTTP(res, req)
+
+	expectNil(t, err)
+	expect(t, res.Code, http.StatusOK)
+	expect(t, res.Header().Get(ContentType), "application/vnd.api+xml")
+	expect(t, res.Body.String(), "<greeting one=\"hello\" two=\"world\"></greeting>")
+}
