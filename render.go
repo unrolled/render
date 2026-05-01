@@ -332,7 +332,7 @@ func (r *Render) compileTemplatesFromDir() {
 					return
 				}
 			}
-			watcher.Close()
+			_ = watcher.Close()
 			r.CompileTemplates()
 		}()
 	}
