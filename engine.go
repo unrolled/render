@@ -81,10 +81,10 @@ func (d Data) Render(w io.Writer, v interface{}) error {
 	if hw, ok := w.(http.ResponseWriter); ok {
 		c := hw.Header().Get(ContentType)
 		if c != "" {
-			d.Head.ContentType = c
+			d.ContentType = c
 		}
 
-		d.Head.Write(hw)
+		d.Write(hw)
 	}
 
 	_, _ = w.Write(v.([]byte))
@@ -107,7 +107,7 @@ func (h HTML) Render(w io.Writer, binding interface{}) error {
 	}
 
 	if hw, ok := w.(http.ResponseWriter); ok {
-		h.Head.Write(hw)
+		h.Write(hw)
 	}
 
 	_, _ = buf.WriteTo(w)
@@ -137,7 +137,7 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 
 	// JSON marshaled fine, write out the result.
 	if hw, ok := w.(http.ResponseWriter); ok {
-		j.Head.Write(hw)
+		j.Write(hw)
 	}
 
 	if len(j.Prefix) > 0 {
@@ -156,7 +156,7 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 
 func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
 	if hw, ok := w.(http.ResponseWriter); ok {
-		j.Head.Write(hw)
+		j.Write(hw)
 	}
 
 	if len(j.Prefix) > 0 {
@@ -191,7 +191,7 @@ func (j JSONP) Render(w io.Writer, v interface{}) error {
 
 	// JSON marshaled fine, write out the result.
 	if hw, ok := w.(http.ResponseWriter); ok {
-		j.Head.Write(hw)
+		j.Write(hw)
 	}
 
 	_, _ = w.Write([]byte(j.Callback + "("))
@@ -211,10 +211,10 @@ func (t Text) Render(w io.Writer, v interface{}) error {
 	if hw, ok := w.(http.ResponseWriter); ok {
 		c := hw.Header().Get(ContentType)
 		if c != "" {
-			t.Head.ContentType = c
+			t.ContentType = c
 		}
 
-		t.Head.Write(hw)
+		t.Write(hw)
 	}
 
 	_, _ = w.Write([]byte(v.(string)))
@@ -241,7 +241,7 @@ func (x XML) Render(w io.Writer, v interface{}) error {
 
 	// XML marshaled fine, write out the result.
 	if hw, ok := w.(http.ResponseWriter); ok {
-		x.Head.Write(hw)
+		x.Write(hw)
 	}
 
 	if len(x.Prefix) > 0 {

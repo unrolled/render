@@ -1,30 +1,18 @@
+version: "2"
+
 run:
-  timeout: 10m
   modules-download-mode: readonly
   allow-parallel-runners: true
 
-issues:
-  exclude:
-    - G203
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - lll
-        - err113
-
 linters:
-  enable-all: true
   disable:
     - copyloopvar
     - cyclop
     - depguard
-    - execinquery
     - exhaustruct
-    - exportloopref
     - funlen
     - gocognit
     - goconst
-    - gomnd
     - intrange
     - paralleltest
     - testpackage
