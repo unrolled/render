@@ -93,7 +93,7 @@ func BenchmarkHTML(b *testing.B) {
 }
 
 // Test Helpers.
-func expect(t *testing.T, a interface{}, b interface{}) {
+func expect(t *testing.T, a any, b any) {
 	t.Helper()
 
 	if a != b {
@@ -101,7 +101,7 @@ func expect(t *testing.T, a interface{}, b interface{}) {
 	}
 }
 
-func expectNil(t *testing.T, a interface{}) {
+func expectNil(t *testing.T, a any) {
 	t.Helper()
 
 	if a != nil {
@@ -109,7 +109,7 @@ func expectNil(t *testing.T, a interface{}) {
 	}
 }
 
-func expectNotNil(t *testing.T, a interface{}) {
+func expectNotNil(t *testing.T, a any) {
 	t.Helper()
 
 	if a == nil {

@@ -18,7 +18,7 @@ type TestEncoder struct {
 	w io.Writer
 }
 
-func (e TestEncoder) Encode(_ interface{}) error {
+func (e TestEncoder) Encode(_ any) error {
 	_, _ = e.w.Write([]byte(e.String()))
 
 	return nil

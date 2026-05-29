@@ -401,13 +401,13 @@ func (r *Render) TemplateLookup(t string) *template.Template {
 	return r.templates.Lookup(t)
 }
 
-func (r *Render) execute(templates *template.Template, name string, binding interface{}) (*bytes.Buffer, error) {
+func (r *Render) execute(templates *template.Template, name string, binding any) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 
 	return buf, templates.ExecuteTemplate(buf, name, binding)
 }
 
-func (r *Render) layoutFuncs(templates *template.Template, name string, binding interface{}) template.FuncMap {
+func (r *Render) layoutFuncs(templates *template.Template, name string, binding any) template.FuncMap {
 	return template.FuncMap{
 		"yield": func() (template.HTML, error) {
 			buf, err := r.execute(templates, name, binding)
@@ -481,7 +481,7 @@ func (r *Render) prepareHTMLOptions(htmlOpt []HTMLOptions) HTMLOptions {
 }
 
 // Render is the generic function called by XML, JSON, Data, HTML, and can be called by custom implementations.
-func (r *Render) Render(w io.Writer, e Engine, data interface{}) error {
+func (r *Render) Render(w io.Writer, e Engine, data any) error {
 	err := e.Render(w, data)
 	if hw, ok := w.(http.ResponseWriter); err != nil && !r.opt.DisableHTTPErrorRendering && ok {
 		http.Error(hw, err.Error(), http.StatusInternalServerError)
@@ -514,7 +514,7 @@ func (r *Render) Data(w io.Writer, status int, v []byte, opts ...CallOptions) er
 }
 
 // HTML builds up the response from the specified template and bindings.
-func (r *Render) HTML(w io.Writer, status int, name string, binding interface{}, htmlOpt ...HTMLOptions) error {
+func (r *Render) HTML(w io.Writer, status int, name string, binding any, htmlOpt ...HTMLOptions) error {
 	// If we are in development mode, recompile the templates on every HTML request.
 	r.lock.RLock() // rlock here because we're reading the hasWatcher
 	if r.opt.IsDevelopment && !r.hasWatcher {
@@ -559,7 +559,7 @@ func (r *Render) HTML(w io.Writer, status int, name string, binding interface{},
 }
 
 // JSON marshals the given interface object and writes the JSON response.
-func (r *Render) JSON(w io.Writer, status int, v interface{}, opts ...CallOptions) error {
+func (r *Render) JSON(w io.Writer, status int, v any, opts ...CallOptions) error {
 	head := Head{
 		ContentType: resolveContentType(r.opt.JSONContentType+r.compiledCharset, opts),
 		Status:      status,
@@ -578,7 +578,7 @@ func (r *Render) JSON(w io.Writer, status int, v interface{}, opts ...CallOption
 }
 
 // JSONP marshals the given interface object and writes the JSON response.
-func (r *Render) JSONP(w io.Writer, status int, callback string, v interface{}, opts ...CallOptions) error {
+func (r *Render) JSONP(w io.Writer, status int, callback string, v any, opts ...CallOptions) error {
 	head := Head{
 		ContentType: resolveContentType(r.opt.JSONPContentType+r.compiledCharset, opts),
 		Status:      status,
@@ -608,7 +608,7 @@ func (r *Render) Text(w io.Writer, status int, v string, opts ...CallOptions) er
 }
 
 // XML marshals the given interface object and writes the XML response.
-func (r *Render) XML(w io.Writer, status int, v interface{}, opts ...CallOptions) error {
+func (r *Render) XML(w io.Writer, status int, v any, opts ...CallOptions) error {
 	head := Head{
 		ContentType: resolveContentType(r.opt.XMLContentType+r.compiledCharset, opts),
 		Status:      status,

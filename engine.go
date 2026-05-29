@@ -11,7 +11,7 @@ import (
 
 // Engine is the generic interface for all responses.
 type Engine interface {
-	Render(w io.Writer, v interface{}) error
+	Render(w io.Writer, v any) error
 }
 
 // Head defines the basic ContentType and Status fields.
@@ -36,7 +36,7 @@ type HTML struct {
 
 // JSONEncoder is the interface for encoding/json.Encoder.
 type JSONEncoder interface {
-	Encode(v interface{}) error
+	Encode(v any) error
 	SetEscapeHTML(on bool)
 	SetIndent(prefix, indent string)
 }
@@ -77,7 +77,7 @@ func (h Head) Write(w http.ResponseWriter) {
 }
 
 // Render a data response.
-func (d Data) Render(w io.Writer, v interface{}) error {
+func (d Data) Render(w io.Writer, v any) error {
 	if hw, ok := w.(http.ResponseWriter); ok {
 		c := hw.Header().Get(ContentType)
 		if c != "" {
@@ -93,7 +93,7 @@ func (d Data) Render(w io.Writer, v interface{}) error {
 }
 
 // Render a HTML response.
-func (h HTML) Render(w io.Writer, binding interface{}) error {
+func (h HTML) Render(w io.Writer, binding any) error {
 	var buf *bytes.Buffer
 	if h.bp != nil {
 		// If we have a bufferpool, allocate from it
@@ -116,7 +116,7 @@ func (h HTML) Render(w io.Writer, binding interface{}) error {
 }
 
 // Render a JSON response.
-func (j JSON) Render(w io.Writer, v interface{}) error {
+func (j JSON) Render(w io.Writer, v any) error {
 	if j.StreamingJSON {
 		return j.renderStreamingJSON(w, v)
 	}
@@ -154,7 +154,7 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 	return nil
 }
 
-func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
+func (j JSON) renderStreamingJSON(w io.Writer, v any) error {
 	if hw, ok := w.(http.ResponseWriter); ok {
 		j.Write(hw)
 	}
@@ -174,7 +174,7 @@ func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
 }
 
 // Render a JSONP response.
-func (j JSONP) Render(w io.Writer, v interface{}) error {
+func (j JSONP) Render(w io.Writer, v any) error {
 	var result []byte
 
 	var err error
@@ -207,7 +207,7 @@ func (j JSONP) Render(w io.Writer, v interface{}) error {
 }
 
 // Render a text response.
-func (t Text) Render(w io.Writer, v interface{}) error {
+func (t Text) Render(w io.Writer, v any) error {
 	if hw, ok := w.(http.ResponseWriter); ok {
 		c := hw.Header().Get(ContentType)
 		if c != "" {
@@ -223,7 +223,7 @@ func (t Text) Render(w io.Writer, v interface{}) error {
 }
 
 // Render an XML response.
-func (x XML) Render(w io.Writer, v interface{}) error {
+func (x XML) Render(w io.Writer, v any) error {
 	var result []byte
 
 	var err error
