@@ -524,3 +524,33 @@ func TestHTMLPerCallContentType(t *testing.T) {
 	expect(t, res.Header().Get(ContentType), "application/xhtml+xml")
 	expect(t, res.Body.String(), "<h1>Hello gophers</h1>\n")
 }
+
+var dotDirFiles = map[string]string{
+	"testdata/dotdir/users.tmpl/index.tmpl": "Hello asset",
+	"testdata/dotdir/a.b.tmpl":              "Hello ab",
+}
+
+// The asset loader must select templates by the same extension rule as the
+// directory walker, including under a dot-named directory and for multi-dot names.
+func TestHTMLAssetExtensionMatchesDirectory(t *testing.T) {
+	names := make([]string, 0, len(dotDirFiles))
+	for n := range dotDirFiles {
+		names = append(names, n)
+	}
+
+	dirRender := New(Options{Directory: "testdata/dotdir"})
+	assetRender := New(Options{
+		Directory:  "testdata/dotdir",
+		Asset:      func(n string) ([]byte, error) { return []byte(dotDirFiles[n]), nil },
+		AssetNames: func() []string { return names },
+	})
+
+	for _, name := range []string{"users.tmpl/index", "a.b"} {
+		if dirRender.TemplateLookup(name) == nil {
+			t.Errorf("directory mode did not load %q", name)
+		}
+		if assetRender.TemplateLookup(name) == nil {
+			t.Errorf("asset mode did not load %q", name)
+		}
+	}
+}
