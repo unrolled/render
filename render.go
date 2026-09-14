@@ -360,7 +360,7 @@ func (r *Render) compileTemplatesFromAsset() {
 
 		ext := ""
 		if strings.Contains(rel, ".") {
-			ext = "." + strings.Join(strings.Split(rel, ".")[1:], ".")
+			ext = filepath.Ext(rel) // match the directory walker: only the final extension
 		}
 
 		for _, extension := range r.opt.Extensions {
