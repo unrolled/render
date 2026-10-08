@@ -87,9 +87,9 @@ func (d Data) Render(w io.Writer, v interface{}) error {
 		d.Write(hw)
 	}
 
-	_, _ = w.Write(v.([]byte))
+	_, err := w.Write(v.([]byte))
 
-	return nil
+	return err
 }
 
 // Render a HTML response.
@@ -110,9 +110,9 @@ func (h HTML) Render(w io.Writer, binding interface{}) error {
 		h.Write(hw)
 	}
 
-	_, _ = buf.WriteTo(w)
+	_, err = buf.WriteTo(w)
 
-	return nil
+	return err
 }
 
 // Render a JSON response.
@@ -141,7 +141,9 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 	}
 
 	if len(j.Prefix) > 0 {
-		_, _ = w.Write(j.Prefix)
+		if _, err := w.Write(j.Prefix); err != nil {
+			return err
+		}
 	}
 
 	// Remove the newline that json.Encode injects when not indenting the output.
@@ -149,9 +151,9 @@ func (j JSON) Render(w io.Writer, v interface{}) error {
 		output = bytes.TrimSuffix(output, []byte("\n"))
 	}
 
-	_, _ = w.Write(output)
+	_, err := w.Write(output)
 
-	return nil
+	return err
 }
 
 func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
@@ -160,7 +162,9 @@ func (j JSON) renderStreamingJSON(w io.Writer, v interface{}) error {
 	}
 
 	if len(j.Prefix) > 0 {
-		_, _ = w.Write(j.Prefix)
+		if _, err := w.Write(j.Prefix); err != nil {
+			return err
+		}
 	}
 
 	encoder := j.Encoder(w)
@@ -194,16 +198,22 @@ func (j JSONP) Render(w io.Writer, v interface{}) error {
 		j.Write(hw)
 	}
 
-	_, _ = w.Write([]byte(j.Callback + "("))
-	_, _ = w.Write(result)
-	_, _ = w.Write([]byte(");"))
+	if _, err = w.Write([]byte(j.Callback + "(")); err != nil {
+		return err
+	}
+	if _, err = w.Write(result); err != nil {
+		return err
+	}
+	if _, err = w.Write([]byte(");")); err != nil {
+		return err
+	}
 
 	// If indenting, append a new line.
 	if j.Indent {
-		_, _ = w.Write([]byte("\n"))
+		_, err = w.Write([]byte("\n"))
 	}
 
-	return nil
+	return err
 }
 
 // Render a text response.
@@ -217,9 +227,9 @@ func (t Text) Render(w io.Writer, v interface{}) error {
 		t.Write(hw)
 	}
 
-	_, _ = w.Write([]byte(v.(string)))
+	_, err := w.Write([]byte(v.(string)))
 
-	return nil
+	return err
 }
 
 // Render an XML response.
@@ -245,10 +255,12 @@ func (x XML) Render(w io.Writer, v interface{}) error {
 	}
 
 	if len(x.Prefix) > 0 {
-		_, _ = w.Write(x.Prefix)
+		if _, err = w.Write(x.Prefix); err != nil {
+			return err
+		}
 	}
 
-	_, _ = w.Write(result)
+	_, err = w.Write(result)
 
-	return nil
+	return err
 }
